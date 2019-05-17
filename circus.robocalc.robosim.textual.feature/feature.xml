@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="circus.robocalc.robosim.textual.feature"
+      label="RoboSim Textual Editor"
+      version="2.0.0.qualifier"
+      provider-name="RoboCalc Project">
+
+   <plugin
+         id="circus.robocalc.robosim.textual"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="circus.robocalc.robosim.textual.ide"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="circus.robocalc.robosim.textual.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>

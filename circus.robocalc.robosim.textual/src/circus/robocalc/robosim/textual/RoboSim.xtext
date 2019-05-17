@@ -1,0 +1,175 @@
+grammar circus.robocalc.robosim.textual.RoboSim with circus.robocalc.robochart.textual.RoboChart
+
+import "http://www.robocalc.circus/RoboSim"
+import "http://www.robocalc.circus/RoboChart"
+
+RootRule returns RCPackage: RCPackage;
+
+InputContext returns Context:
+	{InputContext}
+	'input' 'context' '{'
+		(
+			'uses' interfaces+=[Interface|QualifiedName] |
+			events+=Event 
+		)*
+	'}'
+;
+
+OutputContext returns Context:
+	{OutputContext}
+	'output' 'context' '{'
+		(
+			'uses' interfaces+=[Interface|QualifiedName] |
+			'requires' rInterfaces+=[Interface|QualifiedName] |
+			events+=Event
+		)*
+	'}'
+;
+
+@Override
+Event: 'event' name=ID (':' type=Type)?;
+
+ConstCycle returns Variable:
+	'const' name=ID  ':' type=Type
+;
+
+@Override
+RCModule:
+	{SimModule}'module' name=ID '{'
+		(const=ConstCycle) 
+		('cycleDef' cycleDef=Expression)
+		(
+		connections+=Connection |
+		nodes+=ConnectionNode
+	)*
+	'}'
+;
+
+@Override
+ControllerDef:
+	{SimControllerDef}'controller' name=ID 
+	'{'
+		(const=ConstCycle) 
+		('cycleDef' cycleDef=Expression)
+		(
+		'uses' interfaces+=[Interface|QualifiedName] |
+		'provides' pInterfaces+=[Interface|QualifiedName] |
+		'requires' rInterfaces+=[Interface|QualifiedName] |
+		variableList+=VariableList |
+		events+=Event |
+		lOperations+=OperationDef |
+		lOperations+=OperationRef |
+		machines+=StateMachine |
+		connections+=Connection
+	)*
+	'}'
+;
+
+@Override
+StateMachineDef:
+	{SimMachineDef}'stm' name=ID 
+	'{'
+		(const=ConstCycle) 
+		('cycleDef' cycleDef=Expression)
+		(
+			'uses' interfaces+=[Interface|QualifiedName] |
+			'requires' rInterfaces+=[Interface|QualifiedName] |
+			variableList+=VariableList |
+			clocks+=Clock
+		)*
+		(inputContext=InputContext)?
+		(outputContext=OutputContext)?
+		(
+			nodes+=Node |
+			transitions+=Transition
+		)*
+	'}'
+;
+
+@Override
+Transition:
+	{Transition}
+	'transition' name=ID '{'
+		'from' source=[Node]
+		'to' target=[Node]
+		(
+			trigger=ExecTrigger |
+			'probability' probability=Expression
+		)?
+		('condition' condition=(Expression|Else))?
+		('action' action=Statement)?
+	'}'
+;
+
+ExecTrigger returns Trigger:
+	{ExecTrigger}
+	('exec')
+;
+
+//@Override
+//Not returns Expression:
+//	{Not} 'not' exp=Not |
+//	Comp
+//;
+//
+//@Override
+//Neg returns Expression:
+//	{Neg} '-' exp=Neg |
+//	{SimRefExp} '$' event=[Event] '.' value=Atomic 
+////		(
+////			('?' variable=[Variable|QualifiedName] (':' predicate=Atomic)?) 
+////
+////		) 
+//	|
+//	Selection
+//;
+
+
+SimRefExp returns Expression:
+	{SimRefExp} '$' element=[NamedElement|QualifiedName] (
+		=> '.' value=Atomic | 
+		('?' variable=[Variable|QualifiedName] (':' predicate=Atomic)?)
+	)?
+;
+
+@Override
+Atomic returns Expression:
+	SimRefExp |
+	super::Atomic
+;
+
+//Command
+//OperationCall:
+//	'$' operation=[Operation|QualifiedName] '(' (args+=Expression (',' args+=Expression)*)? ')'
+//;
+//
+////CommandEventCall:
+//OutputCommunication:
+//	('send'?) '$' event=[Event|QualifiedName]
+//		(
+//			('!'|'.') value=Atomic
+//		)?
+//;
+
+@Override
+SendEvent:
+	('send')? '$' trigger=ActualTrigger
+;
+
+@Override
+Call:
+	{Call} '$' operation=[OperationSig|QualifiedName] '(' (args+=Expression (',' args+=Expression)*)? ')'
+;
+
+@Override
+RoboticPlatformDef:
+	{RoboticPlatformDef}'robotic' 'platform' name=ID '{'
+		(
+			'uses' interfaces+=[Interface|QualifiedName] |
+			'provides' pInterfaces+=[Interface|QualifiedName] |
+			variableList+=VariableList |
+			operations+=OperationSig |
+			events+=Event
+		)*
+	'}'
+;
