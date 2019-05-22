@@ -3,6 +3,50 @@
  */
 package circus.robocalc.robosim.textual.validation
 
+import circus.robocalc.robochart.Connection
+import circus.robocalc.robochart.Context
+import circus.robocalc.robochart.Controller
+import circus.robocalc.robochart.ControllerDef
+import circus.robocalc.robochart.ControllerRef
+import circus.robocalc.robochart.Div
+import circus.robocalc.robochart.Event
+import circus.robocalc.robochart.FloatExp
+import circus.robocalc.robochart.IntegerExp
+import circus.robocalc.robochart.Interface
+import circus.robocalc.robochart.Minus
+import circus.robocalc.robochart.NamedElement
+import circus.robocalc.robochart.Neg
+import circus.robocalc.robochart.Node
+import circus.robocalc.robochart.Plus
+import circus.robocalc.robochart.RoboChartPackage
+import circus.robocalc.robochart.RoboticPlatform
+import circus.robocalc.robochart.StateMachine
+import circus.robocalc.robochart.StateMachineDef
+import circus.robocalc.robochart.StateMachineRef
+import circus.robocalc.robochart.Transition
+import circus.robocalc.robochart.Variable
+import circus.robocalc.robosim.RoboSimPackage
+import circus.robocalc.robosim.SimControllerDef
+import circus.robocalc.robosim.SimMachineDef
+import circus.robocalc.robosim.SimModule
+import circus.robocalc.robosim.textual.RoboSimExtensions
+import circus.robocalc.robosim.textual.RoboSimTypeProvider
+import com.google.inject.Inject
+import java.math.BigDecimal
+import java.math.RoundingMode
+import java.util.ArrayList
+import java.util.Comparator
+import java.util.HashSet
+import java.util.List
+import java.util.TreeSet
+import java.util.function.Consumer
+import java.util.function.Function
+import org.eclipse.emf.common.util.BasicEList
+import org.eclipse.emf.common.util.EList
+import org.eclipse.emf.ecore.EReference
+import org.eclipse.xtext.naming.IQualifiedNameProvider
+import org.eclipse.xtext.resource.IResourceDescriptions
+import org.eclipse.xtext.validation.Check
 
 /**
  * This class contains custom validation rules. 
@@ -10,16 +54,443 @@ package circus.robocalc.robosim.textual.validation
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
  */
 class RoboSimValidator extends AbstractRoboSimValidator {
+	public final static String INPUT_INTERFACE_MUST_HAVE_ONLY_EVENTS = "inputInterfaceMustHaveOnlyEvents"
+	public final static String OUTPUT_INTERFACE_MUST_HAVE_ONLY_EVENTS_AND_OPERATIONS = "outputInterfaceMustHaveOnlyEventAndOperations"
+	public final static String MISSING_REQUIRED_INTERFACE = "missingRequiredInterface"
+	public final static String MISSING_DECLARED_INTERFACE = "missingDeclaredInterface"
+	public final static String REQUIRED_INTERFACE_MUST_HAVE_ONLY_INPUTS_OUTPUTS = "requiredInterfaceMustHaveOnlyInputsOutputs"
+	public final static String INCORRECT_CONNECTION_DIRECTION = "incorrectConnectionDirection"
+	public final static String PERIOD_MUST_BE_GREATER_THAN_ZERO = "periodMustBeGreaterThanZero"
+	public final static String CYCLE_MUST_BE_BOOLEAN_EXPRESSION = "cycleMustBeBooleanExpression"
+	public final static String CONST_CYCLE_MUST_BE_NAME_CYCLE = "constCycleMustBeNameCycle"
+	public final static String CONST_CYCLE_MUST_BE_BOOLEAN = "constCycleMustBeBoolean"
+
+	@Inject extension RoboSimTypeProvider
+
+	@Inject IResourceDescriptions rds;
+	@Inject IQualifiedNameProvider qnp
 	
-//	public static val INVALID_NAME = 'invalidName'
-//
-//	@Check
-//	def checkGreetingStartsWithCapital(Greeting greeting) {
-//		if (!Character.isUpperCase(greeting.name.charAt(0))) {
-//			warning('Name should start with a capital', 
-//					RoboSimPackage.Literals.GREETING__NAME,
-//					INVALID_NAME)
-//		}
-//	}
+	@Inject extension RoboSimExtensions
+	
+	var List<Variable> consts = new ArrayList<Variable>();
+
+
+	def checkUniquenessInProject(NamedElement o) {
+		val project = o.eResource.URI.segment(1)
+		val c = rds.allResourceDescriptions.filter[rd|rd.URI.segment(1) == project].map [ rd |
+			rd.getExportedObjects(o.eClass, qnp.getFullyQualifiedName(o), false).toSet
+		].reduce[p1, p2|p1.addAll(p2); return p1]
+		val s = c.size
+		if (s > 1) {
+			warning(
+				'''There is more than one element with name '«qnp.getFullyQualifiedName(o)»'.''',
+				RoboChartPackage.Literals.NAMED_ELEMENT__NAME,
+				'UniqueQualifiedName'
+			)
+		}
+	}
+
+	def checkUniquenessWithoutProject(NamedElement o) {
+		val c = rds.allResourceDescriptions.map [ rd |
+			rd.getExportedObjects(o.eClass, qnp.getFullyQualifiedName(o), false).toSet
+		].reduce[p1, p2|p1.addAll(p2); return p1]
+		val s = c.size
+		if (s > 1) {
+			warning(
+				'''There is more than one element with name '«qnp.getFullyQualifiedName(o)»'.''',
+				RoboChartPackage.Literals.NAMED_ELEMENT__NAME,
+				'UniqueQualifiedName'
+			)
+		}
+	}
+
+	override def checkUniqueness(NamedElement o) {
+		val eResource = o.eResource
+		if (o.eResource.URI.segmentCount > 1) {
+			o.checkUniquenessInProject
+		} else {
+			o.checkUniquenessWithoutProject
+		}
+	}
+
+	def dispatch sizeOfTargetTo(SimMachineDef context, Node node) {
+		context.transitions.filter[t|t.target == node].size
+	}
+
+	def dispatch sizeOfSourceFrom(SimMachineDef context, Node node) {
+		context.transitions.filter[t|t.source == node].size
+	}
+
+	def dispatch EList<Interface> mountInterfaces(SimMachineDef sm, Function<Context, EList<Interface>> f) {
+		val comparator = new Comparator<Interface>() {
+			override compare(Interface a, Interface b) {
+				a.name.compareTo(b.name)
+			}
+		}
+		val interfaces = new TreeSet<Interface>(comparator)
+		interfaces.addAll(f.apply(sm))
+		if (sm.inputContext !== null) {
+			interfaces.addAll(f.apply(sm.inputContext))
+		}
+		if (sm.outputContext !== null) {
+			interfaces.addAll(f.apply(sm.outputContext))
+		}
+		val r = new BasicEList<Interface>()
+		r.addAll(interfaces)
+		r
+	}
+
+	def dispatch EList<Interface> mountInterfaces(StateMachineRef sm, Function<Context, EList<Interface>> f) {
+		sm.ref.mountInterfaces(f)
+	}
+
+	def dispatch EList<Interface> requiredInterfaces(StateMachineRef sm) {
+		return (sm.ref as SimMachineDef).requiredInterfaces
+	}
+
+	def dispatch EList<Interface> requiredInterfaces(SimMachineDef sm) {
+		mountInterfaces(sm, [it.RInterfaces])
+	}
+
+	def dispatch EList<Interface> declaredInterfaces(StateMachineRef sm) {
+		return (sm.ref as SimMachineDef).requiredInterfaces
+	}
+
+	def dispatch EList<Interface> declaredInterfaces(SimMachineDef sm) {
+		mountInterfaces(sm, [it.interfaces])
+	}
+
+	def dispatch BigDecimal evaluate(FloatExp v) {
+		return new BigDecimal(v.value.toString())
+	}
+
+	def dispatch BigDecimal evaluate(IntegerExp v) {
+		return new BigDecimal(v.value.toString())
+	}
+
+	def dispatch BigDecimal evaluate(Plus exp) {
+		return exp.left.evaluate.add(exp.right.evaluate)
+	}
+
+	def dispatch BigDecimal evaluate(Minus exp) {
+		return exp.left.evaluate.subtract(exp.right.evaluate)
+	}
+
+	def dispatch BigDecimal evaluate(Div exp) {
+		return exp.left.evaluate.divide(exp.right.evaluate, RoundingMode.HALF_UP);
+	}
+
+	def dispatch BigDecimal evaluate(Neg exp) {
+		return exp.exp.evaluate.negate
+	}
+	
+	@Check
+	def cycleNameMachine(SimMachineDef sm){
+		
+		val nameCycle = sm.const.name;
+	    if (!nameCycle.equals("cycle")){
+        	error('''Machine «sm.name» must has a constant with name cycle.''',
+        		RoboSimPackage.Literals.SIM_MACHINE_DEF__CONST,
+				 CONST_CYCLE_MUST_BE_NAME_CYCLE
+        	)
+        }
+	}
+	
+	
+	
+	@Check
+	def cycleTypeMachine(SimMachineDef sm){
+	
+        val typeCycle = sm.const.type;
+        val typeBooleanConst = getBooleanType(sm.const)
+      
+        if (!typeCompatible(typeBooleanConst, typeCycle)){
+        	//System.out.println("Type cycle is not boolean")
+        	error('''The constant cycle in Machine «sm.name» must be declared as a boolean.''',
+        		RoboSimPackage.Literals.SIM_MACHINE_DEF__CONST,
+        		//RoboChartPackage.Literals.CONTEXT__RINTERFACES,
+				 CONST_CYCLE_MUST_BE_BOOLEAN
+        	)
+        }
+	}
+
+	@Check
+//	def cycleValueMustBeGreaterThanZero(SimMachineDef sm) {
+     def cycleValueMustBeBooleanExpression(SimMachineDef sm) {
+                  	
+	//	if (sm.period === null || sm.period.evaluate.compareTo(BigDecimal.ZERO) <= 0) {
+	    val bool = getBooleanType(sm.cycleDef)
+	    val tcycle = sm.cycleDef?.typeFor
+		if (sm.cycleDef === null  || !typeCompatible(tcycle, bool)	){
+		//	error('''SimMachine «sm.name»'s period must be higher than zero.''',
+		//		RoboChartPackage.Literals.CONTEXT__RINTERFACES, PERIOD_MUST_BE_GREATER_THAN_ZERO)
+			error('''Machine «sm.name»'s cycleDef must be a boolean expression.''',
+				RoboSimPackage.Literals.SIM_MACHINE_DEF__CYCLE_DEF,
+				 CYCLE_MUST_BE_BOOLEAN_EXPRESSION)	
+		}
+	}
+	
+	@Check
+	def cycleNameController(SimControllerDef sc){
+		
+		val nameCycle = sc.const.name;
+	    if (!nameCycle.equals("cycle")){
+        	error('''Controller «sc.name» must has a constant with name cycle.''',
+        		RoboSimPackage.Literals.SIM_CONTROLLER_DEF__CONST,
+				 CONST_CYCLE_MUST_BE_NAME_CYCLE
+        	)
+        }
+	}
+	
+	@Check
+	def cycleTypeController(SimControllerDef sc){
+	
+        val typeCycle = sc.const.type;
+        val typeBooleanConst = getBooleanType(sc.const)
+      
+        if (!typeCompatible(typeBooleanConst, typeCycle)){
+        	//System.out.println("Type cycle is not boolean")
+        	error('''The constant cycleDef in Controller «sc.name» must be declared as a boolean.''',
+        		RoboSimPackage.Literals.SIM_CONTROLLER_DEF__CONST,
+				 CONST_CYCLE_MUST_BE_BOOLEAN
+        	)
+        }
+	}
+	
+	
+	@Check
+	def cycleValueMustBeBooleanExpression(SimControllerDef sc) {
+
+     //   val nameCycle = sc.const.n
+   
+
+		val bool = getBooleanType(sc.cycleDef)
+		val tcycle = sc.cycleDef?.typeFor
+		if (sc.cycleDef === null || !typeCompatible(tcycle, bool)
+		){
+			error('''Controller «sc.name» cycle must be a boolean expression.''',
+				RoboSimPackage.Literals.SIM_CONTROLLER_DEF__CYCLE_DEF, 
+				CYCLE_MUST_BE_BOOLEAN_EXPRESSION)
+		}
+	}
+	
+	@Check
+	def cycleNameModule(SimModule sm){
+		
+		val nameCycle = sm.const.name;
+	    if (!nameCycle.equals("cycle")){
+        	error('''Module «sm.name» must has a constant with name cycle.''',
+        		RoboSimPackage.Literals.SIM_MODULE__CONST,
+				 CONST_CYCLE_MUST_BE_NAME_CYCLE
+        	)
+        }
+	}
+	
+	@Check
+	def cycleTypeModule(SimModule sm){
+	
+        val typeCycle = sm.const.type;
+        val typeBooleanConst = getBooleanType(sm.const)
+      
+        if (!typeCompatible(typeBooleanConst, typeCycle)){
+        	//System.out.println("Type cycle is not boolean")
+        	error('''The constant cycle in Module «sm.name» must be declared as a boolean.''',
+        		RoboSimPackage.Literals.SIM_MODULE__CONST,
+				 CONST_CYCLE_MUST_BE_BOOLEAN
+        	)
+        }
+	}
+	
+	@Check
+	def cycleValueMustBeBooleanExpression(SimModule sm) {
+		
+		val bool = getBooleanType(sm.cycleDef)
+		val tcycle = sm.cycleDef?.typeFor
+		if (sm.cycleDef === null  || !(typeCompatible(tcycle, bool))
+		){
+			error('''The constant cycleDef in Module «sm.name» must be a boolean expression.''',
+				RoboSimPackage.Literals.SIM_MODULE__CYCLE_DEF, 
+				CYCLE_MUST_BE_BOOLEAN_EXPRESSION)
+		}
+	}
+	
+	def missingInterfaces(ControllerDef c, Function<Context, EList<Interface>> f,
+		Consumer<EList<Interface>> callOnMissing) {
+		val machinesInterfaces = c.machines.map[it.mountInterfaces(f)].flatten
+		val missingInterfaces = new HashSet<Interface>()
+		val controllerInterfaces = f.apply(c)
+		machinesInterfaces.forEach [
+			if (!controllerInterfaces.contains(it)) {
+				missingInterfaces.add(it)
+			}
+		]
+
+		if (!missingInterfaces.empty) {
+			callOnMissing.accept(new BasicEList(missingInterfaces))
+		}
+	}
+
+	@Check
+	def missingRequiredInterface(ControllerDef c) {
+		c.missingInterfaces([it.RInterfaces], [
+			error(
+				'''The controller «c.name» is missing the required interfaces: «it.map[it.name].join(", ")».''',
+				RoboChartPackage.Literals.CONTEXT__RINTERFACES,
+				MISSING_REQUIRED_INTERFACE
+			)
+		])
+	}
+
+	@Check
+	def missingDeclaredInterface(ControllerDef c) {
+		c.missingInterfaces([it.interfaces], [
+			error(
+				'''The controller «c.name» is missing the declared interfaces: «it.map[it.name].join(", ")».''',
+				RoboChartPackage.Literals.CONTEXT__INTERFACES,
+				MISSING_DECLARED_INTERFACE
+			)
+		])
+	}
+
+	@Check
+	def outputInterfaceMustHaveOnlyEventsAndOperations(SimMachineDef sm) {
+		sm.outputContext.interfaces.forEach [
+			if (it.variableList.size > 0) {
+				error('''Output interface «it.name» of SimMachine «sm.name» must have only events and operations.''',
+					RoboSimPackage.Literals.SIM_MACHINE_DEF__OUTPUT_CONTEXT,
+					OUTPUT_INTERFACE_MUST_HAVE_ONLY_EVENTS_AND_OPERATIONS)
+					return
+				}
+			]
+		}
+		
+		
+		
+	
+
+		@Check
+		def inputInterfaceMustHaveOnlyEvents(SimMachineDef sm) {
+			sm.inputContext.interfaces.forEach [
+				if (it.variableList.size > 0 || it.operations.size > 0) {
+					error('''Input interface «it.name» of SimMachine «sm.name» must have only events.''',
+						RoboSimPackage.Literals.SIM_MACHINE_DEF__INPUT_CONTEXT, INPUT_INTERFACE_MUST_HAVE_ONLY_EVENTS)
+					return
+				}
+			]
+		}
+
+
+      @Check
+		def requiredInterfacesHaveOnlyInputsOutputs(SimMachineDef sm) {
+//			sm.RVars.forEach[
+//				if (it.v){
+//					error('''Required variables can be inputs or outputs «it.name» of SimMachine «sm.name» must have only events.''',
+//						RoboSimPackage.Literals.SIM_MACHINE_DEF__INPUT_CONTEXT, INPUT_INTERFACE_MUST_HAVE_ONLY_EVENTS)
+//					return
+//				}
+//			]
+			sm.RInterfaces.forEach [
+				if (it.variableList.size > 0){
+					error('''Required variables must be an input or output. «it.name» of SimMachine «sm.name» .''',
+						//RoboSimPackage.Literals.REQUIRED_VARIABLE__VARIABLE, INPUT_INTERFACE_MUST_HAVE_ONLY_EVENTS)
+						RoboChartPackage.Literals.CONTEXT__RINTERFACES, INPUT_INTERFACE_MUST_HAVE_ONLY_EVENTS)
+					return
+				}
+			]
+			
+			
+		}
+
+		@Check
+		override def transitionWellTyped(Transition t) {
+			val bool = getBooleanType(t)
+			// The typeFor is an injected method and is required in RoboSim for condition with the Feedback Expression
+			// If this method is removed, or its superclass method is called, the typeFor won't use RoboSim's injected typeFor.
+			val tcond = t.condition?.typeFor
+			if (t.condition != null && !typeCompatible(tcond, bool)) {
+				val msg = 'Transition condition should have type boolean, but ' + (if (tcond == null)
+					'actual type could not be computed'
+				else
+					'actual type is ' )
+				error(
+					msg,
+					RoboChartPackage.Literals.TRANSITION__CONDITION,
+					'TransitionConditionTypeError'
+				)
+			}
+		}
+
+		def directionsError(Connection conn, EReference r) {
+			error(
+				'''Connection from «conn.from.name» on «conn.efrom.name» to «conn.to.name» on «conn.eto.name» should be in the opposite direction.''',
+				r,
+				INCORRECT_CONNECTION_DIRECTION
+			)
+		}
+
+		def dispatch void checkConnectionDirection(Connection conn, Controller from, Event efrom, StateMachine to,
+			Event eto) {
+			if (!to.declaredInputEvents.contains(eto)) {
+				conn.directionsError(RoboChartPackage.Literals.CONNECTION__ETO)
+			}
+		}
+
+		def dispatch void checkConnectionDirection(Connection conn, RoboticPlatform from, Event efrom, ControllerDef to,
+			Event eto) {
+			val conns = to.connections.filter[it.from.equals(to) && it.efrom.equals(eto)]
+			conns.forEach[it.checkConnectionDirection(it.from, it.efrom, it.to, it.eto)]
+		}
+
+		def dispatch void checkConnectionDirection(Connection conn, RoboticPlatform from, Event efrom, ControllerRef to,
+			Event eto) {
+			conn.checkConnectionDirection(from, efrom, to.ref, eto)
+		}
+
+		def dispatch void checkConnectionDirection(Connection conn, StateMachine from, Event efrom, Controller to,
+			Event eto) {
+			if (!from.declaredOutputEvents.contains(efrom)) {
+				conn.directionsError(RoboChartPackage.Literals.CONNECTION__EFROM)
+			}
+		}
+
+		def dispatch void checkConnectionDirection(Connection conn, ControllerDef from, Event efrom, RoboticPlatform to,
+			Event eto) {
+			val conns = from.connections.filter[it.to.equals(from) && it.eto.equals(efrom)]
+			conns.forEach[it.checkConnectionDirection(it.from, it.efrom, it.to, it.eto)]
+		}
+
+		def dispatch void checkConnectionDirection(Connection conn, ControllerRef from, Event efrom, RoboticPlatform to,
+			Event eto) {
+			conn.checkConnectionDirection(from.ref, efrom, to, eto)
+		}
+
+		@Check
+		def checkConnectionDirection(Connection conn) {
+			conn.checkConnectionDirection(conn.from, conn.efrom, conn.to, conn.eto)
+		}
+		
+		
+//		 static class StateMachineExtensions {
+//	    def name(StateMachine machine) {
+//	    	(machine as SimMachineDef).name
+//	    }
+//	    
+//	    def variables(StateMachine machine) {
+//	    	(machine as SimMachineDef).variableList
+//	    }
+//	    
+//	    def constantes(StateMachine machine) {
+//	    	(machine as SimMachineDef).const
+//	    }
+//    
+//    
+//	    def transitions(StateMachine machine) {
+//	    	(machine as SimMachineDef).transitions
+//	    }
+//    
+//	    def nodes(StateMachine machine) {
+//	    	(machine as SimMachineDef).nodes
+//	    }
+//    }
 	
 }

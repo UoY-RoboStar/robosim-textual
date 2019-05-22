@@ -3,6 +3,15 @@
  */
 package circus.robocalc.robosim.textual.scoping
 
+import circus.robocalc.robochart.Transition
+import circus.robocalc.robosim.SimMachineDef
+import circus.robocalc.robosim.SimModule
+import java.util.Collections
+import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.ecore.EReference
+import org.eclipse.xtext.scoping.IScope
+import org.eclipse.xtext.scoping.Scopes
+import static circus.robocalc.robochart.RoboChartPackage.Literals.*
 
 /**
  * This class contains custom scoping description.
@@ -11,5 +20,161 @@ package circus.robocalc.robosim.textual.scoping
  * on how and when to use it.
  */
 class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
+override getScope(EObject context, EReference reference) {
+		val scope = context.resolveScope(reference)
+ 
+		return scope
+	}
 
+	def dispatch IScope resolveScope(EObject context, EReference reference) {
+		return super.getScope(context, reference)
+	}
+
+	def dispatch IScope nodesDeclared(EObject context, IScope result) {
+		return result
+	}
+
+	def dispatch IScope nodesDeclared(SimModule context, IScope result) {
+		Scopes::scopeFor(context.nodes, result)
+	}
+
+	def IScope scopesFor(IScope p, Iterable<? extends EObject>... iterables) {
+		var r = p
+		for (iter : iterables) {
+			r = Scopes::scopeFor(iter, r)
+		}
+		return r
+	}
+	
+	def dispatch IScope eventsDeclared(SimMachineDef n, IScope p) {
+		var finalScope = n.inputEventsDeclared(p)
+		finalScope = n.outputEventsDeclared(finalScope)
+		finalScope.scopesFor(
+			n.RInterfaces.map[it.events].flatten,
+			n.interfaces.map[it.events].flatten
+		)
+		return finalScope
+	}
+
+	def dispatch IScope operationsDeclared(SimMachineDef n, IScope p) {
+		var finalScope = n.outputOperationsDeclared(p)
+		finalScope.scopesFor(
+			n.interfaces.map[it.operations].flatten,
+			n.RInterfaces.map[it.operations].flatten
+		)
+		return finalScope
+	}
+
+	def dispatch IScope inputEventsDeclared(EObject n, IScope p) {
+		if (n.eContainer !== null) {
+			return n.eContainer.inputEventsDeclared(p)
+		}
+		return p
+	}
+
+	def dispatch IScope inputEventsDeclared(SimMachineDef n, IScope p) {
+		if (n.inputContext === null) {
+			return p
+		}
+		p.scopesFor(
+			n.inputContext.events,
+			n.inputContext.interfaces.map[it.events].flatten
+		)
+	}
+
+	def dispatch IScope outputEventsDeclared(EObject n, IScope p) {
+		if (n.eContainer !== null) {
+			return n.eContainer.outputEventsDeclared(p)
+		}
+		return p
+	}
+
+	def dispatch IScope outputEventsDeclared(SimMachineDef n, IScope p) {
+		if (n.outputContext === null) {
+			return p
+		}
+		p.scopesFor(
+			n.outputContext.events,
+			n.outputContext.interfaces.map[it.events].flatten,
+			n.outputContext.RInterfaces.map[it.events].flatten
+		)
+	}
+
+	def dispatch IScope outputOperationsDeclared(EObject n, IScope p) {
+		if (n.eContainer !== null) {
+			return n.eContainer.outputOperationsDeclared(p)
+		}
+		return p
+	}
+
+	def dispatch IScope outputOperationsDeclared(SimMachineDef n, IScope p) {
+		p.scopesFor(
+			n.outputContext.operations,
+			n.outputContext.interfaces.map[it.operations].flatten,
+			n.outputContext.RInterfaces.map[it.operations].flatten
+		)
+	}
+	
+//	def dispatch IScope resolveScope(InputCommunication context, EReference reference) {
+//		val result = super.getScope(context, reference)
+//		if (reference == INPUT_COMMUNICATION__EVENT) {
+//			return context.eContainer.inputEventsDeclared(result)
+//		} else if (reference == INPUT_COMMUNICATION__VARIABLE) {
+//			return context.eContainer.variablesDeclared(result)
+//		}
+//		return result
+//	}
+//
+//	def dispatch IScope resolveScope(OperationCall context, EReference reference) {
+//		val result = delegateGetScope(context, reference)
+//		if (reference == OPERATION_CALL__OPERATION) {
+//			return context.eContainer.outputOperationsDeclared(result)
+//		}
+//		return result
+//	}
+//	
+//	def dispatch IScope resolveScope(OutputCommunication context, EReference reference) {
+//		val result = delegateGetScope(context, reference)
+//		//if (reference == COMMAND_EVENT_CALL__EVENT) {
+//		//	return context.eContainer.outputEventsDeclared(result)
+//		//}
+//		if (reference == OUTPUT_COMMUNICATION__EVENT) {
+//			return context.eContainer.outputEventsDeclared(result)
+//		}
+//		return result
+//	}
+
+	def dispatch IScope declaredNodes(SimMachineDef context, IScope scope) {
+		return Scopes::scopeFor(context.nodes, scope)
+	}
+
+	def dispatch IScope declaredNodes(EObject context, IScope scope) {
+		return scope
+	}
+
+	def dispatch IScope resolveScope(Transition context, EReference reference) {
+		val result = super.getScope(context, reference)
+		if (reference == TRANSITION__SOURCE || reference == TRANSITION__TARGET) {
+			return context.eContainer.declaredNodes(result)
+		}
+		return result
+	}
+
+	def dispatch IScope clocksDeclared(SimMachineDef cont) {
+		Scopes::scopeFor(cont.clocks)
+	}
+
+	def dispatch IScope variablesDeclared(SimMachineDef cont, IScope p) {
+		var s = cont.eContainer.variablesDeclared(p)
+		val outputContextVariables = if (cont.outputContext === null) {
+				Collections.emptyList
+			} else {
+				cont.outputContext.RInterfaces.map[it.variableList].flatten.map[it.vars].flatten
+			}
+		s.scopesFor(
+			cont.variableList.map[it.vars].flatten,
+			cont.RInterfaces.map[it.variableList].flatten.map[it.vars].flatten,
+			outputContextVariables
+		)
+	}
 }

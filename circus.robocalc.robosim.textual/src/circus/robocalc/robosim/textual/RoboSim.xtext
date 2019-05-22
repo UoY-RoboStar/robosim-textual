@@ -124,9 +124,15 @@ ExecTrigger returns Trigger:
 //	Selection
 //;
 
+@Override
+VariableReference returns Assignable:
+	{SimVarRef} '$' name=[Variable|QualifiedName] |
+	super::VariableReference
+;
 
-SimRefExp returns Expression:
-	{SimRefExp} '$' element=[NamedElement|QualifiedName] (
+
+EventExp returns Expression:
+	{EventExp} '$' element=[Event|QualifiedName] (
 		=> '.' value=Atomic | 
 		('?' variable=[Variable|QualifiedName] (':' predicate=Atomic)?)
 	)?
@@ -134,7 +140,7 @@ SimRefExp returns Expression:
 
 @Override
 Atomic returns Expression:
-	SimRefExp |
+	EventExp |
 	super::Atomic
 ;
 
@@ -158,7 +164,8 @@ SendEvent:
 
 @Override
 Call:
-	{Call} '$' operation=[OperationSig|QualifiedName] '(' (args+=Expression (',' args+=Expression)*)? ')'
+	{SimCall} '$' operation=[OperationSig|QualifiedName] '(' (args+=Expression (',' args+=Expression)*)? ')' |
+	super::Call
 ;
 
 @Override

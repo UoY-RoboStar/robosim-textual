@@ -5,8 +5,10 @@ package circus.robocalc.robosim.textual
 
 import circus.robocalc.robochart.textual.RoboChartQualifiedNameConverter
 import circus.robocalc.robochart.textual.scoping.RoboChartImportURIGlobalScopeProvider
+import circus.robocalc.robosim.textual.scoping.RoboSimScopeProvider
 import org.eclipse.xtext.naming.IQualifiedNameConverter
 import org.eclipse.xtext.scoping.IGlobalScopeProvider
+import org.eclipse.xtext.scoping.IScopeProvider
 
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
@@ -17,5 +19,8 @@ class RoboSimRuntimeModule extends AbstractRoboSimRuntimeModule {
 	}
 	def Class<? extends IQualifiedNameConverter> bindIQualifiedNameConverter() {
 		return RoboChartQualifiedNameConverter
+	}
+	override Class<? extends IScopeProvider> bindIScopeProvider() {
+		return RoboSimScopeProvider
 	}
 }
