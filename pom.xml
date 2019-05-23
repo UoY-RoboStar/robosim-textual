@@ -27,7 +27,7 @@
 		<module>circus.robocalc.robosim.textual.feature</module>
 		<module>circus.robocalc.robosim.textual.repository</module>
 		<module>circus.robocalc.robosim.textual.tests</module>
-		<module>circus.robocalc.robosim.textual.ui.tests</module>
+		<!--<module>circus.robocalc.robosim.textual.ui.tests</module>-->
 	</modules>
 	<dependencyManagement>
 		<dependencies>
