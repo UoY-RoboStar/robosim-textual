@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>circus.robocalc.robosim.textual</groupId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>2.0.0-SNAPSHOT</version>
 	<artifactId>circus.robocalc.robosim.textual.parent</artifactId>
 	<packaging>pom</packaging>
 
@@ -283,6 +283,21 @@
 		</pluginManagement>
 	</build>
 	<repositories>
+		<repository>
+            <id>robochart-metamodel</id>
+            <url>https://www.cs.york.ac.uk/robostar/robotool/metamodel/update/</url>
+            <layout>p2</layout>
+        </repository>
+		<repository>
+            <id>robochart-textual</id>
+            <url>https://www.cs.york.ac.uk/robostar/robotool/textual/update/</url>
+            <layout>p2</layout>
+        </repository>
+		<repository>
+            <id>robosim-metamodel</id>
+            <url>https://www.cs.york.ac.uk/robostar/robotool/robosim-metamodel/update/</url>
+            <layout>p2</layout>
+        </repository>        
 		<repository>
 			<id>codehaus-snapshots</id>
 			<name>disable dead 'Codehaus Snapshots' repository, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=481478</name>
