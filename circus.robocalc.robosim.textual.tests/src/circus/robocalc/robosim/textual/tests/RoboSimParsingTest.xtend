@@ -21,7 +21,7 @@ class RoboSimParsingTest {
 	@Test
 	def void loadModel() {
 		val result = parseHelper.parse('''
-			Hello Xtext!
+			interface I { event e }
 		''')
 		Assertions.assertNotNull(result)
 		val errors = result.eResource.errors
