@@ -184,35 +184,35 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 		return exp.exp.evaluate.negate
 	}
 	
-	@Check
-	def cycleNameMachine(SimMachineDef sm){
-		
-		val nameCycle = sm.const.name;
-	    if (!nameCycle.equals("cycle")){
-        	error('''Machine «sm.name» must has a constant with name cycle.''',
-        		RoboSimPackage.Literals.SIM_MACHINE_DEF__CONST,
-				 CONST_CYCLE_MUST_BE_NAME_CYCLE
-        	)
-        }
-	}
-	
-	
-	
-	@Check
-	def cycleTypeMachine(SimMachineDef sm){
-	
-        val typeCycle = sm.const.type;
-        val typeBooleanConst = getBooleanType(sm.const)
-      
-        if (!typeCompatible(typeBooleanConst, typeCycle)){
-        	//System.out.println("Type cycle is not boolean")
-        	error('''The constant cycle in Machine «sm.name» must be declared as a boolean.''',
-        		RoboSimPackage.Literals.SIM_MACHINE_DEF__CONST,
-        		//RoboChartPackage.Literals.CONTEXT__RINTERFACES,
-				 CONST_CYCLE_MUST_BE_BOOLEAN
-        	)
-        }
-	}
+//	@Check
+//	def cycleNameMachine(SimMachineDef sm){
+//		
+//		val nameCycle = sm.const.name;
+//	    if (!nameCycle.equals("cycle")){
+//        	error('''Machine «sm.name» must has a constant with name cycle.''',
+//        		RoboSimPackage.Literals.SIM_MACHINE_DEF__CONST,
+//				 CONST_CYCLE_MUST_BE_NAME_CYCLE
+//        	)
+//        }
+//	}
+//	
+//	
+//	
+//	@Check
+//	def cycleTypeMachine(SimMachineDef sm){
+//	
+//        val typeCycle = sm.const.type;
+//        val typeBooleanConst = getBooleanType(sm.const)
+//      
+//        if (!typeCompatible(typeBooleanConst, typeCycle)){
+//        	//System.out.println("Type cycle is not boolean")
+//        	error('''The constant cycle in Machine «sm.name» must be declared as a boolean.''',
+//        		RoboSimPackage.Literals.SIM_MACHINE_DEF__CONST,
+//        		//RoboChartPackage.Literals.CONTEXT__RINTERFACES,
+//				 CONST_CYCLE_MUST_BE_BOOLEAN
+//        	)
+//        }
+//	}
 
 	@Check
 //	def cycleValueMustBeGreaterThanZero(SimMachineDef sm) {
@@ -230,32 +230,32 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 		}
 	}
 	
-	@Check
-	def cycleNameController(SimControllerDef sc){
-		
-		val nameCycle = sc.const.name;
-	    if (!nameCycle.equals("cycle")){
-        	error('''Controller «sc.name» must has a constant with name cycle.''',
-        		RoboSimPackage.Literals.SIM_CONTROLLER_DEF__CONST,
-				 CONST_CYCLE_MUST_BE_NAME_CYCLE
-        	)
-        }
-	}
+//	@Check
+//	def cycleNameController(SimControllerDef sc){
+//		
+//		val nameCycle = sc.const.name;
+//	    if (!nameCycle.equals("cycle")){
+//        	error('''Controller «sc.name» must has a constant with name cycle.''',
+//        		RoboSimPackage.Literals.SIM_CONTROLLER_DEF__CONST,
+//				 CONST_CYCLE_MUST_BE_NAME_CYCLE
+//        	)
+//        }
+//	}
 	
-	@Check
-	def cycleTypeController(SimControllerDef sc){
-	
-        val typeCycle = sc.const.type;
-        val typeBooleanConst = getBooleanType(sc.const)
-      
-        if (!typeCompatible(typeBooleanConst, typeCycle)){
-        	//System.out.println("Type cycle is not boolean")
-        	error('''The constant cycleDef in Controller «sc.name» must be declared as a boolean.''',
-        		RoboSimPackage.Literals.SIM_CONTROLLER_DEF__CONST,
-				 CONST_CYCLE_MUST_BE_BOOLEAN
-        	)
-        }
-	}
+//	@Check
+//	def cycleTypeController(SimControllerDef sc){
+//	
+//        val typeCycle = sc.const.type;
+//        val typeBooleanConst = getBooleanType(sc.const)
+//      
+//        if (!typeCompatible(typeBooleanConst, typeCycle)){
+//        	//System.out.println("Type cycle is not boolean")
+//        	error('''The constant cycleDef in Controller «sc.name» must be declared as a boolean.''',
+//        		RoboSimPackage.Literals.SIM_CONTROLLER_DEF__CONST,
+//				 CONST_CYCLE_MUST_BE_BOOLEAN
+//        	)
+//        }
+//	}
 	
 	
 	@Check
@@ -274,32 +274,32 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 		}
 	}
 	
-	@Check
-	def cycleNameModule(SimModule sm){
-		
-		val nameCycle = sm.const.name;
-	    if (!nameCycle.equals("cycle")){
-        	error('''Module «sm.name» must has a constant with name cycle.''',
-        		RoboSimPackage.Literals.SIM_MODULE__CONST,
-				 CONST_CYCLE_MUST_BE_NAME_CYCLE
-        	)
-        }
-	}
-	
-	@Check
-	def cycleTypeModule(SimModule sm){
-	
-        val typeCycle = sm.const.type;
-        val typeBooleanConst = getBooleanType(sm.const)
-      
-        if (!typeCompatible(typeBooleanConst, typeCycle)){
-        	//System.out.println("Type cycle is not boolean")
-        	error('''The constant cycle in Module «sm.name» must be declared as a boolean.''',
-        		RoboSimPackage.Literals.SIM_MODULE__CONST,
-				 CONST_CYCLE_MUST_BE_BOOLEAN
-        	)
-        }
-	}
+//	@Check
+//	def cycleNameModule(SimModule sm){
+//		
+//		val nameCycle = sm.const.name;
+//	    if (!nameCycle.equals("cycle")){
+//        	error('''Module «sm.name» must has a constant with name cycle.''',
+//        		RoboSimPackage.Literals.SIM_MODULE__CONST,
+//				 CONST_CYCLE_MUST_BE_NAME_CYCLE
+//        	)
+//        }
+//	}
+//	
+//	@Check
+//	def cycleTypeModule(SimModule sm){
+//	
+//        val typeCycle = sm.const.type;
+//        val typeBooleanConst = getBooleanType(sm.const)
+//      
+//        if (!typeCompatible(typeBooleanConst, typeCycle)){
+//        	//System.out.println("Type cycle is not boolean")
+//        	error('''The constant cycle in Module «sm.name» must be declared as a boolean.''',
+//        		RoboSimPackage.Literals.SIM_MODULE__CONST,
+//				 CONST_CYCLE_MUST_BE_BOOLEAN
+//        	)
+//        }
+//	}
 	
 	@Check
 	def cycleValueMustBeBooleanExpression(SimModule sm) {

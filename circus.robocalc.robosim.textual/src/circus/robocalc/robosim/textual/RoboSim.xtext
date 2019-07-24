@@ -36,7 +36,6 @@ ConstCycle returns Variable:
 @Override
 RCModule:
 	{SimModule}'module' name=ID '{'
-		(const=ConstCycle) 
 		('cycleDef' cycleDef=Expression)
 		(
 		connections+=Connection |
@@ -49,7 +48,6 @@ RCModule:
 ControllerDef:
 	{SimControllerDef}'controller' name=ID 
 	'{'
-		(const=ConstCycle) 
 		('cycleDef' cycleDef=Expression)
 		(
 		'uses' interfaces+=[Interface|QualifiedName] |
@@ -68,8 +66,7 @@ ControllerDef:
 @Override
 StateMachineDef:
 	{SimMachineDef}'stm' name=ID 
-	'{'
-		(const=ConstCycle) 
+	'{' 
 		('cycleDef' cycleDef=Expression)
 		(
 			'uses' interfaces+=[Interface|QualifiedName] |
@@ -112,18 +109,24 @@ ExecTrigger returns Trigger:
 //	Comp
 //;
 //
-//@Override
-//Neg returns Expression:
-//	{Neg} '-' exp=Neg |
+@Override
+Neg returns Expression:
+	{Neg} '-' exp=Neg |
 //	{SimRefExp} '$' event=[Event] '.' value=Atomic 
-////		(
-////			('?' variable=[Variable|QualifiedName] (':' predicate=Atomic)?) 
-////
-////		) 
-//	|
-//	Selection
-//;
-
+//		(
+//			('?' variable=[Variable|QualifiedName] (':' predicate=Atomic)?) 
+//
+//		)
+	{SimRefExp} '$' element=[NamedElement|QualifiedName] (
+		=> '.' exp=Atomic | 
+		('?' variable=[Variable|QualifiedName] (':' predicate=Atomic)?)
+	)? 
+	|
+	{CycleExp} 'cycle'
+	|
+	Selection
+;
+ 
 @Override
 VariableReference returns Assignable:
 	{SimVarRef} '$' name=[Variable|QualifiedName] |
@@ -131,18 +134,18 @@ VariableReference returns Assignable:
 ;
 
 
-EventExp returns Expression:
-	{EventExp} '$' element=[Event|QualifiedName] (
-		=> '.' value=Atomic | 
+SimRefExp returns Expression:
+	{SimRefExp} '$' element=[NamedElement|QualifiedName] (
+		=> '.' exp=Atomic | 
 		('?' variable=[Variable|QualifiedName] (':' predicate=Atomic)?)
 	)?
 ;
 
-@Override
-Atomic returns Expression:
-	EventExp |
-	super::Atomic
-;
+//@Override
+//Atomic returns Expression:
+//	SimRefExp |
+//	super::Atomic
+//;
 
 //Command
 //OperationCall:

@@ -4,14 +4,21 @@
 package circus.robocalc.robosim.textual.scoping
 
 import circus.robocalc.robochart.Transition
+import circus.robocalc.robochart.Variable
+import circus.robocalc.robosim.SimCall
 import circus.robocalc.robosim.SimMachineDef
 import circus.robocalc.robosim.SimModule
+import circus.robocalc.robosim.SimRefExp
+import circus.robocalc.robosim.textual.RoboSimTypeProvider
+import com.google.inject.Inject
 import java.util.Collections
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.xtext.scoping.IScope
 import org.eclipse.xtext.scoping.Scopes
+
 import static circus.robocalc.robochart.RoboChartPackage.Literals.*
+import static circus.robocalc.robosim.RoboSimPackage.Literals.*
 
 /**
  * This class contains custom scoping description.
@@ -20,9 +27,19 @@ import static circus.robocalc.robochart.RoboChartPackage.Literals.*
  * on how and when to use it.
  */
 class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
-override getScope(EObject context, EReference reference) {
+	@Inject extension RoboSimTypeProvider
+	override getScope(EObject context, EReference reference) {
+		if (context instanceof SimRefExp) {
+			switch(reference) {
+				case SIM_REF_EXP__ELEMENT : System.out.println("element")
+				case SIM_REF_EXP__PREDICATE: System.out.println("predicate")
+				case SIM_REF_EXP__EXP: System.out.println("exp")
+				case SIM_REF_EXP__VARIABLE: System.out.println("variable")
+			}
+		}
+		
 		val scope = context.resolveScope(reference)
- 
+ 		//val scope = super.getScope(context,reference)
 		return scope
 	}
 
@@ -159,10 +176,43 @@ override getScope(EObject context, EReference reference) {
 		}
 		return result
 	}
+	
+	def dispatch IScope resolveScope(SimRefExp context, EReference reference) {
+		val result = super.getScope(context,reference)
+		if (reference == SIM_REF_EXP__EXP) {
+			if (context.element instanceof Variable) {
+				val s = getSelectionScope(context.element.typeFor)
+				return s	
+			}	
+		} else if (reference == SIM_REF_EXP__ELEMENT) {
+			var s = variablesDeclared(context, result)
+			s = eventsDeclared(context,s)
+			return s
+		} 
+		return result
+	}
 
 	def dispatch IScope clocksDeclared(SimMachineDef cont) {
 		Scopes::scopeFor(cont.clocks)
 	}
+	
+//	def dispatch IScope variablesDeclared(SimModule cont, IScope p) {
+//		var s = super.variablesDeclared(cont,p);
+//		var constCol = new HashSet<Variable>();
+//		val c = cont.const
+//		constCol.add(c)
+//		s = Scopes::scopeFor(constCol, s);
+//		return s
+//	}
+//	
+//	def dispatch IScope variablesDeclared(SimControllerDef cont, IScope p) {
+//		var s = super.variablesDeclared(cont,p);
+//		var constCol = new HashSet<Variable>();
+//		val c = cont.const
+//		constCol.add(c)
+//		s = Scopes::scopeFor(constCol, s);
+//		return s
+//	}
 
 	def dispatch IScope variablesDeclared(SimMachineDef cont, IScope p) {
 		var s = cont.eContainer.variablesDeclared(p)
@@ -171,7 +221,11 @@ override getScope(EObject context, EReference reference) {
 			} else {
 				cont.outputContext.RInterfaces.map[it.variableList].flatten.map[it.vars].flatten
 			}
+//		var constCol = new HashSet<Variable>();
+//		val c = cont.const
+//		constCol.add(c)
 		s.scopesFor(
+			//constCol,
 			cont.variableList.map[it.vars].flatten,
 			cont.RInterfaces.map[it.variableList].flatten.map[it.vars].flatten,
 			outputContextVariables
