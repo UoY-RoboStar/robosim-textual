@@ -21,6 +21,6 @@ class RoboSimTypeProvider extends RoboCalcTypeProvider {
 	}
 	
 	def dispatch Type typeFor(CycleExp e) {
-		return getBooleanType(e)
+		return getNatType(e)
 	}
 }
