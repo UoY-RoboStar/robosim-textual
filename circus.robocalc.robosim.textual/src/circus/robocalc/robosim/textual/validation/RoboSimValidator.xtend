@@ -3,6 +3,7 @@
  */
 package circus.robocalc.robosim.textual.validation
 
+import circus.robocalc.robochart.Assignment
 import circus.robocalc.robochart.Connection
 import circus.robocalc.robochart.Context
 import circus.robocalc.robochart.Controller
@@ -21,7 +22,6 @@ import circus.robocalc.robochart.Plus
 import circus.robocalc.robochart.RoboChartPackage
 import circus.robocalc.robochart.RoboticPlatform
 import circus.robocalc.robochart.StateMachine
-import circus.robocalc.robochart.StateMachineDef
 import circus.robocalc.robochart.StateMachineRef
 import circus.robocalc.robochart.Transition
 import circus.robocalc.robochart.Variable
@@ -100,6 +100,19 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 				'''There is more than one element with name '«qnp.getFullyQualifiedName(o)»'.''',
 				RoboChartPackage.Literals.NAMED_ELEMENT__NAME,
 				'UniqueQualifiedName'
+			)
+		}
+	}
+
+	override def assignmentWellTyped(Assignment a) {
+		val t2 = a.left.typeFor
+		val t1 = a.right.typeFor
+		if (!typeCompatible(t1, t2)) { // && t1 !==	null) { I had to remove this otherwise an badly typed expression would not yield an error
+			val msg = '''Variable «a.left.print» expects type «a.left.typeFor.printType», but «IF t1 === null»expression cannot be typed.«ELSE»expression has type «t1.printType»«ENDIF» '''
+			error(
+				msg,
+				RoboChartPackage.Literals.ASSIGNMENT__LEFT,
+				'AssignmentTypeError'
 			)
 		}
 	}
