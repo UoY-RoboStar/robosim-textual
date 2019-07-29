@@ -10,10 +10,16 @@ import circus.robocalc.robochart.Controller
 import circus.robocalc.robochart.ControllerDef
 import circus.robocalc.robochart.ControllerRef
 import circus.robocalc.robochart.Div
+import circus.robocalc.robochart.Equals
 import circus.robocalc.robochart.Event
+import circus.robocalc.robochart.Expression
 import circus.robocalc.robochart.FloatExp
+import circus.robocalc.robochart.GreaterOrEqual
+import circus.robocalc.robochart.GreaterThan
 import circus.robocalc.robochart.IntegerExp
 import circus.robocalc.robochart.Interface
+import circus.robocalc.robochart.LessOrEqual
+import circus.robocalc.robochart.LessThan
 import circus.robocalc.robochart.Minus
 import circus.robocalc.robochart.NamedElement
 import circus.robocalc.robochart.Neg
@@ -505,5 +511,101 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 //	    	(machine as SimMachineDef).nodes
 //	    }
 //    }
+
+	override checkClockExpWellTyped(Expression e) {
+		val nat = getNatType(e)
+		val real = getRealType(e)
+
+		if (e.eContainer !== null && e.eContainer instanceof Expression) {
+			var parent = e.eContainer
+			var isTypeCompatible = false
+
+			switch parent {
+				LessThan: {
+					isTypeCompatible = if (parent.left === e) {
+						var compareType = parent.right.typeFor
+						if (compareType !== null)
+							typeCompatible(compareType, nat) || typeCompatible(compareType, real)
+						else
+							false
+					} else {
+						var compareType = parent.left.typeFor
+						if (compareType !== null)
+							typeCompatible(compareType, nat) || typeCompatible(compareType, real)
+						else
+							false
+					}
+				}
+				LessOrEqual: {
+					isTypeCompatible = if (parent.left === e) {
+						var compareType = parent.right.typeFor
+						if (compareType !== null)
+							typeCompatible(compareType, nat) || typeCompatible(compareType, real)
+						else
+							false
+					} else {
+						var compareType = parent.left.typeFor
+						if (compareType !== null)
+							typeCompatible(compareType, nat) || typeCompatible(compareType, real)
+						else
+							false
+					}
+				}
+				GreaterThan: {
+					isTypeCompatible = if (parent.left === e) {
+						var compareType = parent.right.typeFor
+						if (compareType !== null)
+							typeCompatible(compareType, nat) || typeCompatible(compareType, real)
+						else
+							false
+					} else {
+						var compareType = parent.left.typeFor
+						if (compareType !== null)
+							typeCompatible(compareType, nat) || typeCompatible(compareType, real)
+						else
+							false
+					}
+				}
+				GreaterOrEqual: {
+					isTypeCompatible = if (parent.left === e) {
+						var compareType = parent.right.typeFor
+						if (compareType !== null)
+							typeCompatible(compareType, nat) || typeCompatible(compareType, real)
+						else
+							false
+					} else {
+						var compareType = parent.left.typeFor
+						if (compareType !== null)
+							typeCompatible(compareType, nat) || typeCompatible(compareType, real)
+						else
+							false
+					}
+				}
+				Equals: {
+					isTypeCompatible = if (parent.left === e) {
+						var compareType = parent.right.typeFor
+						if (compareType !== null)
+							typeCompatible(compareType, nat) || typeCompatible(compareType, real)
+						else
+							false
+					} else {
+						var compareType = parent.left.typeFor
+						if (compareType !== null)
+							typeCompatible(compareType, nat) || typeCompatible(compareType, real)
+						else
+							false
+					}
+				}
+				default:
+					error('Unsupported use of timed expression', null, 'TimeExpressionNotSupported', 'timed')
+			}
+			if (!isTypeCompatible) {
+				error('Timed expression being compared should be of type nat or real', null, 'TimeExpressionTypeError',
+					'timed')
+			}
+		} else {
+			error('Unsupported use of timed expression', null, 'TimeExpressionNotSupported', 'timed')
+		}
+	}
 	
 }
