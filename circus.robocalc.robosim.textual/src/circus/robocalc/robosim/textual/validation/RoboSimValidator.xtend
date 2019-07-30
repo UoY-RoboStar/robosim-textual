@@ -608,4 +608,24 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 		}
 	}
 	
+	override variableInitWellTyped(Variable v) {
+		if (v.initial !== null) {
+			val t1 = v.initial.typeFor
+			val t2 = v.type
+			if (!typeCompatible(t1, t2)) {
+				val parent = if (v.eContainer.eContainer instanceof NamedElement)
+						(v.eContainer.eContainer as NamedElement).
+							name
+					else
+						null
+				val msg = '''Variable «v.name» «(if(parent !== null) 'in ' + parent else '')» expects type «v.type.printType», but «IF t1 === null»expression cannot be typed.«ELSE»expression has type «t1.printType»«ENDIF»'''
+
+				error(
+					msg,
+					RoboChartPackage.Literals.VARIABLE__INITIAL,
+					'VarInitType'
+				)
+			}
+		}
+	}
 }

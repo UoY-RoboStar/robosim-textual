@@ -127,11 +127,11 @@ Neg returns Expression:
 	Selection
 ;
  
-@Override
-VariableReference returns Assignable:
-	{SimVarRef} '$' name=[Variable|QualifiedName] |
-	super::VariableReference
-;
+//@Override
+//VariableReference returns Assignable:
+//	{SimVarRef} '$' name=[Variable|QualifiedName] |
+//	super::VariableReference
+//;
 
 
 SimRefExp returns Expression:

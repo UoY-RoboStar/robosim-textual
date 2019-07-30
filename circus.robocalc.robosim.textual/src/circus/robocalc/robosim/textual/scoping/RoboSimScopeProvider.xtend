@@ -3,9 +3,9 @@
  */
 package circus.robocalc.robosim.textual.scoping
 
+import circus.robocalc.robochart.RefExp
 import circus.robocalc.robochart.Transition
 import circus.robocalc.robochart.Variable
-import circus.robocalc.robosim.SimCall
 import circus.robocalc.robosim.SimMachineDef
 import circus.robocalc.robosim.SimModule
 import circus.robocalc.robosim.SimRefExp
@@ -41,6 +41,17 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 		val scope = context.resolveScope(reference)
  		//val scope = super.getScope(context,reference)
 		return scope
+	}
+
+	def dispatch IScope resolveScope(RefExp context, EReference reference) {
+		if (context.eContainer instanceof SimRefExp && reference == REF_EXP__REF) {
+			val parent = context.eContainer as SimRefExp
+			if (parent.exp == context && parent.element instanceof Variable) {
+				val type = (parent.element as Variable).type
+				return getSelectionScope(type)
+			}
+		}
+		return super.getScope(context,reference)
 	}
 
 	def dispatch IScope resolveScope(EObject context, EReference reference) {
