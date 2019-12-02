@@ -10,6 +10,7 @@ InputContext returns Context:
 	'input' 'context' '{'
 		(
 			'uses' interfaces+=[Interface|QualifiedName] |
+			'requires' rInterfaces+=[Interface|QualifiedName] | 
 			events+=Event 
 		)*
 	'}'
