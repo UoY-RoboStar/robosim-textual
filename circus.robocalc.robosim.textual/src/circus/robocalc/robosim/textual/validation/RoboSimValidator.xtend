@@ -53,6 +53,12 @@ import org.eclipse.emf.ecore.EReference
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.resource.IResourceDescriptions
 import org.eclipse.xtext.validation.Check
+import java.util.LinkedList
+import circus.robocalc.robochart.ConnectionNode
+import circus.robocalc.robochart.RCModule
+import circus.robocalc.robochart.RoboticPlatformDef
+import circus.robocalc.robochart.RoboticPlatformRef
+import circus.robocalc.robosim.InputContext
 
 /**
  * This class contains custom validation rules. 
@@ -203,79 +209,7 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 		return exp.exp.evaluate.negate
 	}
 	
-//	@Check
-//	def cycleNameMachine(SimMachineDef sm){
-//		
-//		val nameCycle = sm.const.name;
-//	    if (!nameCycle.equals("cycle")){
-//        	error('''Machine «sm.name» must has a constant with name cycle.''',
-//        		RoboSimPackage.Literals.SIM_MACHINE_DEF__CONST,
-//				 CONST_CYCLE_MUST_BE_NAME_CYCLE
-//        	)
-//        }
-//	}
-//	
-//	
-//	
-//	@Check
-//	def cycleTypeMachine(SimMachineDef sm){
-//	
-//        val typeCycle = sm.const.type;
-//        val typeBooleanConst = getBooleanType(sm.const)
-//      
-//        if (!typeCompatible(typeBooleanConst, typeCycle)){
-//        	//System.out.println("Type cycle is not boolean")
-//        	error('''The constant cycle in Machine «sm.name» must be declared as a boolean.''',
-//        		RoboSimPackage.Literals.SIM_MACHINE_DEF__CONST,
-//        		//RoboChartPackage.Literals.CONTEXT__RINTERFACES,
-//				 CONST_CYCLE_MUST_BE_BOOLEAN
-//        	)
-//        }
-//	}
 
-	@Check
-//	def cycleValueMustBeGreaterThanZero(SimMachineDef sm) {
-     def cycleValueMustBeBooleanExpression(SimMachineDef sm) {
-                  	
-	//	if (sm.period === null || sm.period.evaluate.compareTo(BigDecimal.ZERO) <= 0) {
-	    val bool = getBooleanType(sm.cycleDef)
-	    val tcycle = sm.cycleDef?.typeFor
-		if (sm.cycleDef === null  || !typeCompatible(tcycle, bool)	){
-		//	error('''SimMachine «sm.name»'s period must be higher than zero.''',
-		//		RoboChartPackage.Literals.CONTEXT__RINTERFACES, PERIOD_MUST_BE_GREATER_THAN_ZERO)
-			error('''Machine «sm.name»'s cycleDef must be a boolean expression.''',
-				RoboSimPackage.Literals.SIM_MACHINE_DEF__CYCLE_DEF,
-				 CYCLE_MUST_BE_BOOLEAN_EXPRESSION)	
-		}
-	}
-	
-//	@Check
-//	def cycleNameController(SimControllerDef sc){
-//		
-//		val nameCycle = sc.const.name;
-//	    if (!nameCycle.equals("cycle")){
-//        	error('''Controller «sc.name» must has a constant with name cycle.''',
-//        		RoboSimPackage.Literals.SIM_CONTROLLER_DEF__CONST,
-//				 CONST_CYCLE_MUST_BE_NAME_CYCLE
-//        	)
-//        }
-//	}
-	
-//	@Check
-//	def cycleTypeController(SimControllerDef sc){
-//	
-//        val typeCycle = sc.const.type;
-//        val typeBooleanConst = getBooleanType(sc.const)
-//      
-//        if (!typeCompatible(typeBooleanConst, typeCycle)){
-//        	//System.out.println("Type cycle is not boolean")
-//        	error('''The constant cycleDef in Controller «sc.name» must be declared as a boolean.''',
-//        		RoboSimPackage.Literals.SIM_CONTROLLER_DEF__CONST,
-//				 CONST_CYCLE_MUST_BE_BOOLEAN
-//        	)
-//        }
-//	}
-	
 	
 	@Check
 	def cycleValueMustBeBooleanExpression(SimControllerDef sc) {
@@ -293,33 +227,7 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 		}
 	}
 	
-//	@Check
-//	def cycleNameModule(SimModule sm){
-//		
-//		val nameCycle = sm.const.name;
-//	    if (!nameCycle.equals("cycle")){
-//        	error('''Module «sm.name» must has a constant with name cycle.''',
-//        		RoboSimPackage.Literals.SIM_MODULE__CONST,
-//				 CONST_CYCLE_MUST_BE_NAME_CYCLE
-//        	)
-//        }
-//	}
-//	
-//	@Check
-//	def cycleTypeModule(SimModule sm){
-//	
-//        val typeCycle = sm.const.type;
-//        val typeBooleanConst = getBooleanType(sm.const)
-//      
-//        if (!typeCompatible(typeBooleanConst, typeCycle)){
-//        	//System.out.println("Type cycle is not boolean")
-//        	error('''The constant cycle in Module «sm.name» must be declared as a boolean.''',
-//        		RoboSimPackage.Literals.SIM_MODULE__CONST,
-//				 CONST_CYCLE_MUST_BE_BOOLEAN
-//        	)
-//        }
-//	}
-	
+
 	@Check
 	def cycleValueMustBeBooleanExpression(SimModule sm) {
 		
@@ -399,26 +307,26 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 		}
 
 
-      @Check
-		def requiredInterfacesHaveOnlyInputsOutputs(SimMachineDef sm) {
-//			sm.RVars.forEach[
-//				if (it.v){
-//					error('''Required variables can be inputs or outputs «it.name» of SimMachine «sm.name» must have only events.''',
-//						RoboSimPackage.Literals.SIM_MACHINE_DEF__INPUT_CONTEXT, INPUT_INTERFACE_MUST_HAVE_ONLY_EVENTS)
+//      @Check
+//		def requiredInterfacesHaveOnlyInputsOutputs(SimMachineDef sm) {
+////			sm.RVars.forEach[
+////				if (it.v){
+////					error('''Required variables can be inputs or outputs «it.name» of SimMachine «sm.name» must have only events.''',
+////						RoboSimPackage.Literals.SIM_MACHINE_DEF__INPUT_CONTEXT, INPUT_INTERFACE_MUST_HAVE_ONLY_EVENTS)
+////					return
+////				}
+////			]
+//			sm.RInterfaces.forEach [
+//				if (it.variableList.size > 0){
+//					error('''Required variables must be an input or output. «it.name» of SimMachine «sm.name» .''',
+//						//RoboSimPackage.Literals.REQUIRED_VARIABLE__VARIABLE, INPUT_INTERFACE_MUST_HAVE_ONLY_EVENTS)
+//						RoboChartPackage.Literals.CONTEXT__RINTERFACES, INPUT_INTERFACE_MUST_HAVE_ONLY_EVENTS)
 //					return
 //				}
 //			]
-			sm.RInterfaces.forEach [
-				if (it.variableList.size > 0){
-					error('''Required variables must be an input or output. «it.name» of SimMachine «sm.name» .''',
-						//RoboSimPackage.Literals.REQUIRED_VARIABLE__VARIABLE, INPUT_INTERFACE_MUST_HAVE_ONLY_EVENTS)
-						RoboChartPackage.Literals.CONTEXT__RINTERFACES, INPUT_INTERFACE_MUST_HAVE_ONLY_EVENTS)
-					return
-				}
-			]
-			
-			
-		}
+//			
+//			
+//		}
 
 		@Check
 		override def transitionWellTyped(Transition t) {
@@ -628,4 +536,84 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 			}
 		}
 	}
+	
+	
+	//mscf added
+	override Context getContext(ConnectionNode cn) {
+		if (cn instanceof SimMachineDef)
+			return cn as SimMachineDef
+		else if (cn instanceof SimControllerDef)
+			return cn as SimControllerDef
+		else if (cn instanceof RoboticPlatformDef)
+			return cn as RoboticPlatformDef
+		else if (cn instanceof StateMachineRef)
+			return cn.ref
+		else if (cn instanceof ControllerRef)
+			return cn.ref
+		else if (cn instanceof RoboticPlatformRef)
+			return cn.ref
+	}
+	
+	
+
+	override wfcCn_EventsFromSameContext(Connection c) {
+		var cont = c.eContainer
+		/* Cn1 (approximation via to/from) */
+		if (cont instanceof RCModule) {
+			if (!(cont.nodes.contains(c.to) && cont.nodes.contains(c.from))) {
+				error('Cn1: Connections of a module must associate only its robotic platform and its controllers',
+					RoboChartPackage.Literals.CONNECTION__EFROM, 
+					'NodesNotFromSameModule')
+			}
+		}
+			
+		/* Cn3 (approximation via to/from) */
+		if (cont instanceof ControllerDef) {
+			var nodes = new LinkedList<ConnectionNode>
+			nodes.add(cont) 
+			nodes.addAll(cont.machines)
+			if (!(nodes.contains(c.to) && nodes.contains(c.from))) {
+				error('Cn3: Connections of a controller must associate only itself and its state machines',
+					RoboChartPackage.Literals.CONNECTION__EFROM, 
+					'NodesNotFromSameController')
+			}
+		}
+		 
+		/* Cn10 */
+		// identify context and collect set of events of this context for to/from
+		val toEvents = new LinkedList<Event>()
+		toEvents.addAll(getContext(c.to).events)
+		getContext(c.to).interfaces.forEach[i | toEvents.addAll(i.events)]
+		// check whether eto is in this list
+		
+		if (getContext(c.to) instanceof SimMachineDef) {
+			toEvents.addAll((getContext(c.to) as SimMachineDef).inputContext.events)
+			toEvents.addAll((getContext(c.to) as SimMachineDef).outputContext.events)
+			(getContext(c.to) as SimMachineDef).inputContext.interfaces.forEach[i | toEvents.addAll(i.events)]
+		    (getContext(c.to) as SimMachineDef).outputContext.interfaces.forEach[i | toEvents.addAll(i.events)]
+		}
+		
+		if (!toEvents.contains(c.eto)) {
+			error('Cn10: The eto-event of a connection must be an event of its to-node',
+				RoboChartPackage.Literals.CONNECTION__ETO, 
+				'ToEventFromForeignContext')
+		}
+		val fromEvents = new LinkedList<Event>()
+		fromEvents.addAll(getContext(c.from).events)
+		getContext(c.from).interfaces.forEach[i | fromEvents.addAll(i.events)]
+		// check whether efrom is in this list
+		if (getContext(c.from) instanceof SimMachineDef) {
+			fromEvents.addAll((getContext(c.from) as SimMachineDef).inputContext.events)
+			fromEvents.addAll((getContext(c.from) as SimMachineDef).outputContext.events)
+			(getContext(c.from) as SimMachineDef).inputContext.interfaces.forEach[i | fromEvents.addAll(i.events)]
+		    (getContext(c.from) as SimMachineDef).outputContext.interfaces.forEach[i | fromEvents.addAll(i.events)]
+		}
+		
+		if (!fromEvents.contains(c.efrom)) {
+			error('Cn10: The efrom-event of a connection must be an event of its from-node',
+				RoboChartPackage.Literals.CONNECTION__EFROM, 
+				'FromEventFromForeignContext')
+		}
+	}
+	
 }
