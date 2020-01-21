@@ -59,6 +59,11 @@ import circus.robocalc.robochart.RCModule
 import circus.robocalc.robochart.RoboticPlatformDef
 import circus.robocalc.robochart.RoboticPlatformRef
 import circus.robocalc.robosim.InputContext
+import circus.robocalc.robochart.OperationSig
+import org.eclipse.emf.ecore.EObject
+import circus.robocalc.robochart.StateMachineDef
+import circus.robocalc.robochart.OperationDef
+import circus.robocalc.robochart.OperationRef
 
 /**
  * This class contains custom validation rules. 
@@ -613,6 +618,72 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 			error('Cn10: The efrom-event of a connection must be an event of its from-node',
 				RoboChartPackage.Literals.CONNECTION__EFROM, 
 				'FromEventFromForeignContext')
+		}
+	}
+	
+	
+	override List<OperationSig> getROps(EObject o) {
+		if (o instanceof RoboticPlatform) {
+			throw new RuntimeException(
+				"Robotic Platform do not require variables, therefore this call should not happen")
+		} else if (o instanceof ControllerDef) {
+			val rOps = new LinkedList<OperationSig>()
+			o.RInterfaces.forEach[i|rOps.addAll(i.operations)]
+			return rOps
+		} else if (o instanceof ControllerRef) {
+			return getROps(o.ref)
+		} else if (o instanceof SimMachineDef) {
+			val rOps = new LinkedList<OperationSig>()
+			o.RInterfaces.forEach[i|rOps.addAll(i.operations)]
+			//o.inputContext.RInterfaces.forEach[i|rOps.addAll(i.operations)]
+			o.outputContext.RInterfaces.forEach[i|rOps.addAll(i.operations)]
+//			for (op : rOps) {
+//				System.out.println(op.name)
+//			} 
+		    return rOps
+		} else if (o instanceof StateMachineRef) {
+			return getROps(o.ref)
+		} else if (o instanceof OperationDef) {
+			val rOps = new LinkedList<OperationSig>()
+			o.RInterfaces.forEach[i|rOps.addAll(i.operations)]
+			return rOps
+		} else if (o instanceof OperationRef) {
+			return getROps(o.ref)
+		}
+	}
+	
+	override List<OperationSig> getPOps(EObject o) {
+		if (o instanceof RoboticPlatformDef) {
+			val pOps = new LinkedList<OperationSig>()
+			pOps.addAll(o.operations)
+			o.PInterfaces.forEach[i|pOps.addAll(i.operations)]
+			return pOps
+		} else if (o instanceof RoboticPlatformRef) {
+			return getPOps(o.ref)
+		} else if (o instanceof ControllerDef) {
+			val pOps = new LinkedList<OperationSig>()
+
+			// TODO: review this case as it involves operation definitions
+			o.LOperations.filter[m|m instanceof OperationDef || m instanceof OperationRef].forEach [ m |
+				if(m instanceof OperationRef) pOps.add(m.ref) else pOps.add(m as OperationSig)
+			]
+			// any controller required operation is provided to the state machines
+			o.RInterfaces.forEach[i|pOps.addAll(i.operations)]
+			// any operation defined inside a controller, is provided to the state machines
+			return pOps
+		} else if (o instanceof ControllerRef) {
+			return getPOps(o.ref)
+		} else if (o instanceof SimMachineDef) {
+			// any state machine required operation is provided to the state machine behaviours
+			val pOps = new LinkedList<OperationSig>()
+			o.RInterfaces.forEach[i|pOps.addAll(i.operations)]
+			o.outputContext.RInterfaces.forEach[i|pOps.addAll(i.operations)]
+//			for (op : pOps) {
+//				System.out.println(op.name)
+//			} 
+			return pOps
+		} else if (o instanceof StateMachineRef) {
+			return getPOps(o.ref)
 		}
 	}
 	
