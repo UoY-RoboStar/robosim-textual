@@ -211,35 +211,35 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 	
 
 	
-	@Check
-	def cycleValueMustBeBooleanExpression(SimControllerDef sc) {
-
-     //   val nameCycle = sc.const.n
-   
-
-		val bool = getBooleanType(sc.cycleDef)
-		val tcycle = sc.cycleDef?.typeFor
-		if (sc.cycleDef === null || !typeCompatible(tcycle, bool)
-		){
-			error('''Controller «sc.name» cycle must be a boolean expression.''',
-				RoboSimPackage.Literals.SIM_CONTROLLER_DEF__CYCLE_DEF, 
-				CYCLE_MUST_BE_BOOLEAN_EXPRESSION)
-		}
-	}
-	
-
-	@Check
-	def cycleValueMustBeBooleanExpression(SimModule sm) {
-		
-		val bool = getBooleanType(sm.cycleDef)
-		val tcycle = sm.cycleDef?.typeFor
-		if (sm.cycleDef === null  || !(typeCompatible(tcycle, bool))
-		){
-			error('''The constant cycleDef in Module «sm.name» must be a boolean expression.''',
-				RoboSimPackage.Literals.SIM_MODULE__CYCLE_DEF, 
-				CYCLE_MUST_BE_BOOLEAN_EXPRESSION)
-		}
-	}
+//	@Check
+//	def cycleValueMustBeBooleanExpression(SimControllerDef sc) {
+//
+//     //   val nameCycle = sc.const.n
+//   
+//
+//		val bool = getBooleanType(sc.cycleDef)
+//		val tcycle = sc.cycleDef?.typeFor
+//		if (sc.cycleDef === null || !typeCompatible(tcycle, bool)
+//		){
+//			error('''Controller «sc.name» cycle must be a boolean expression.''',
+//				RoboSimPackage.Literals.SIM_CONTROLLER_DEF__CYCLE_DEF, 
+//				CYCLE_MUST_BE_BOOLEAN_EXPRESSION)
+//		}
+//	}
+//	
+//
+//	@Check
+//	def cycleValueMustBeBooleanExpression(SimModule sm) {
+//		
+//		val bool = getBooleanType(sm.cycleDef)
+//		val tcycle = sm.cycleDef?.typeFor
+//		if (sm.cycleDef === null  || !(typeCompatible(tcycle, bool))
+//		){
+//			error('''The constant cycleDef in Module «sm.name» must be a boolean expression.''',
+//				RoboSimPackage.Literals.SIM_MODULE__CYCLE_DEF, 
+//				CYCLE_MUST_BE_BOOLEAN_EXPRESSION)
+//		}
+//	}
 	
 	def missingInterfaces(ControllerDef c, Function<Context, EList<Interface>> f,
 		Consumer<EList<Interface>> callOnMissing) {
@@ -257,16 +257,16 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 		}
 	}
 
-	@Check
-	def missingRequiredInterface(ControllerDef c) {
-		c.missingInterfaces([it.RInterfaces], [
-			error(
-				'''The controller «c.name» is missing the required interfaces: «it.map[it.name].join(", ")».''',
-				RoboChartPackage.Literals.CONTEXT__RINTERFACES,
-				MISSING_REQUIRED_INTERFACE
-			)
-		])
-	}
+//	@Check
+//	def missingRequiredInterface(ControllerDef c) {
+//		c.missingInterfaces([it.RInterfaces], [
+//			error(
+//				'''The controller «c.name» is missing the required interfaces: «it.map[it.name].join(", ")».''',
+//				RoboChartPackage.Literals.CONTEXT__RINTERFACES,
+//				MISSING_REQUIRED_INTERFACE
+//			)
+//		])
+//	}
 
 	@Check
 	def missingDeclaredInterface(ControllerDef c) {
