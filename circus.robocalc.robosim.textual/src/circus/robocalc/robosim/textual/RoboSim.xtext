@@ -167,6 +167,12 @@ SendEvent:
 ;
 
 @Override
+BasicStatement returns Statement:
+	{ExecStatement} 'exec' |
+	super::BasicStatement
+;
+
+@Override
 Call:
 	{SimCall} '$' operation=[OperationSig|QualifiedName] '(' (args+=Expression (',' args+=Expression)*)? ')' |
 	super::Call
