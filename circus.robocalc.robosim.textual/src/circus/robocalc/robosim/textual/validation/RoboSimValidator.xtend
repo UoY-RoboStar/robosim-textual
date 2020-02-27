@@ -352,54 +352,54 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 			}
 		}
 
-		def directionsError(Connection conn, EReference r) {
-			error(
-				'''Connection from «conn.from.name» on «conn.efrom.name» to «conn.to.name» on «conn.eto.name» should be in the opposite direction.''',
-				r,
-				INCORRECT_CONNECTION_DIRECTION
-			)
-		}
-
-		def dispatch void checkConnectionDirection(Connection conn, Controller from, Event efrom, StateMachine to,
-			Event eto) {
-			if (!to.declaredInputEvents.contains(eto)) {
-				conn.directionsError(RoboChartPackage.Literals.CONNECTION__ETO)
-			}
-		}
-
-		def dispatch void checkConnectionDirection(Connection conn, RoboticPlatform from, Event efrom, ControllerDef to,
-			Event eto) {
-			val conns = to.connections.filter[it.from.equals(to) && it.efrom.equals(eto)]
-			conns.forEach[it.checkConnectionDirection(it.from, it.efrom, it.to, it.eto)]
-		}
-
-		def dispatch void checkConnectionDirection(Connection conn, RoboticPlatform from, Event efrom, ControllerRef to,
-			Event eto) {
-			conn.checkConnectionDirection(from, efrom, to.ref, eto)
-		}
-
-		def dispatch void checkConnectionDirection(Connection conn, StateMachine from, Event efrom, Controller to,
-			Event eto) {
-			if (!from.declaredOutputEvents.contains(efrom)) {
-				conn.directionsError(RoboChartPackage.Literals.CONNECTION__EFROM)
-			}
-		}
-
-		def dispatch void checkConnectionDirection(Connection conn, ControllerDef from, Event efrom, RoboticPlatform to,
-			Event eto) {
-			val conns = from.connections.filter[it.to.equals(from) && it.eto.equals(efrom)]
-			conns.forEach[it.checkConnectionDirection(it.from, it.efrom, it.to, it.eto)]
-		}
-
-		def dispatch void checkConnectionDirection(Connection conn, ControllerRef from, Event efrom, RoboticPlatform to,
-			Event eto) {
-			conn.checkConnectionDirection(from.ref, efrom, to, eto)
-		}
-
-		@Check
-		def checkConnectionDirection(Connection conn) {
-			conn.checkConnectionDirection(conn.from, conn.efrom, conn.to, conn.eto)
-		}
+//		def directionsError(Connection conn, EReference r) {
+//			error(
+//				'''Connection from «conn.from.name» on «conn.efrom.name» to «conn.to.name» on «conn.eto.name» should be in the opposite direction.''',
+//				r,
+//				INCORRECT_CONNECTION_DIRECTION
+//			)
+//		}
+//
+//		def dispatch void checkConnectionDirection(Connection conn, Controller from, Event efrom, StateMachine to,
+//			Event eto) {
+//			if (!to.declaredInputEvents.contains(eto)) {
+//				conn.directionsError(RoboChartPackage.Literals.CONNECTION__ETO)
+//			}
+//		}
+//
+//		def dispatch void checkConnectionDirection(Connection conn, RoboticPlatform from, Event efrom, ControllerDef to,
+//			Event eto) {
+//			val conns = to.connections.filter[it.from.equals(to) && it.efrom.equals(eto)]
+//			conns.forEach[it.checkConnectionDirection(it.from, it.efrom, it.to, it.eto)]
+//		}
+//
+//		def dispatch void checkConnectionDirection(Connection conn, RoboticPlatform from, Event efrom, ControllerRef to,
+//			Event eto) {
+//			conn.checkConnectionDirection(from, efrom, to.ref, eto)
+//		}
+//
+//		def dispatch void checkConnectionDirection(Connection conn, StateMachine from, Event efrom, Controller to,
+//			Event eto) {
+//			if (!from.declaredOutputEvents.contains(efrom)) {
+//				conn.directionsError(RoboChartPackage.Literals.CONNECTION__EFROM)
+//			}
+//		}
+//
+//		def dispatch void checkConnectionDirection(Connection conn, ControllerDef from, Event efrom, RoboticPlatform to,
+//			Event eto) {
+//			val conns = from.connections.filter[it.to.equals(from) && it.eto.equals(efrom)]
+//			conns.forEach[it.checkConnectionDirection(it.from, it.efrom, it.to, it.eto)]
+//		}
+//
+//		def dispatch void checkConnectionDirection(Connection conn, ControllerRef from, Event efrom, RoboticPlatform to,
+//			Event eto) {
+//			conn.checkConnectionDirection(from.ref, efrom, to, eto)
+//		}
+//
+//		@Check
+//		def checkConnectionDirection(Connection conn) {
+//			conn.checkConnectionDirection(conn.from, conn.efrom, conn.to, conn.eto)
+//		}
 		
 		
 //		 static class StateMachineExtensions {
