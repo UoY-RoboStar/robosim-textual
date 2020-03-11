@@ -64,6 +64,7 @@ import org.eclipse.emf.ecore.EObject
 import circus.robocalc.robochart.StateMachineDef
 import circus.robocalc.robochart.OperationDef
 import circus.robocalc.robochart.OperationRef
+import circus.robocalc.robosim.SimContext
 
 /**
  * This class contains custom validation rules. 
@@ -285,11 +286,11 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 	}
 
 	@Check
-	def outputInterfaceMustHaveOnlyEventsAndOperations(SimMachineDef sm) {
+	def outputInterfaceMustHaveOnlyEventsAndOperations(SimContext sm) {
 		sm.outputContext.interfaces.forEach [
 			if (it.variableList.size > 0) {
 				error('''Output interface «it.name» of SimMachine «sm.name» must have only events and operations.''',
-					RoboSimPackage.Literals.SIM_MACHINE_DEF__OUTPUT_CONTEXT,
+					RoboSimPackage.Literals.SIM_CONTEXT__OUTPUT_CONTEXT,
 					OUTPUT_INTERFACE_MUST_HAVE_ONLY_EVENTS_AND_OPERATIONS)
 					return
 				}
@@ -301,11 +302,11 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 	
 
 		@Check
-		def inputInterfaceMustHaveOnlyEvents(SimMachineDef sm) {
+		def inputInterfaceMustHaveOnlyEvents(SimContext sm) {
 			sm.inputContext.interfaces.forEach [
 				if (it.variableList.size > 0 || it.operations.size > 0) {
 					error('''Input interface «it.name» of SimMachine «sm.name» must have only events.''',
-						RoboSimPackage.Literals.SIM_MACHINE_DEF__INPUT_CONTEXT, INPUT_INTERFACE_MUST_HAVE_ONLY_EVENTS)
+						RoboSimPackage.Literals.SIM_CONTEXT__INPUT_CONTEXT, INPUT_INTERFACE_MUST_HAVE_ONLY_EVENTS)
 					return
 				}
 			]

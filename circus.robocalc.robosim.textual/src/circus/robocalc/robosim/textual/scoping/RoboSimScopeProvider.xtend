@@ -19,6 +19,7 @@ import org.eclipse.xtext.scoping.Scopes
 
 import static circus.robocalc.robochart.RoboChartPackage.Literals.*
 import static circus.robocalc.robosim.RoboSimPackage.Literals.*
+import circus.robocalc.robochart.StateMachineDef
 
 /**
  * This class contains custom scoping description.
@@ -36,6 +37,8 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 				case SIM_REF_EXP__EXP: System.out.println("exp")
 				case SIM_REF_EXP__VARIABLE: System.out.println("variable")
 			}
+		} else {
+			return super.getScope(context,reference)
 		}
 		
 		val scope = context.resolveScope(reference)
@@ -86,11 +89,16 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 
 	def dispatch IScope operationsDeclared(SimMachineDef n, IScope p) {
 		var finalScope = n.outputOperationsDeclared(p)
-		finalScope.scopesFor(
-			n.interfaces.map[it.operations].flatten,
-			n.RInterfaces.map[it.operations].flatten
-		)
-		return finalScope
+//		@author: Pedro
+//		NOTE: Commented out to include, in addition to this scope, that
+//			  already calculated by the RoboChartScopeProvider for
+// 			  operations. I believe a similar approach needs to be
+// 			  adopted for all other RoboSim elements.
+//		finalScope.scopesFor(
+//			n.interfaces.map[it.operations].flatten,
+//			n.RInterfaces.map[it.operations].flatten
+//		)
+		return super.operationsDeclared(n as StateMachineDef, finalScope)
 	}
 
 	def dispatch IScope inputEventsDeclared(EObject n, IScope p) {

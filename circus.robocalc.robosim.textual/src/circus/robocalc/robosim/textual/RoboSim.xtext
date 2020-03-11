@@ -85,6 +85,33 @@ StateMachineDef:
 ;
 
 @Override
+OperationDef:
+	{SimOperationDef} 'operation' name=ID '('
+		(
+			parameters+=Parameter
+			(',' parameters+=Parameter)*
+		)?
+	')'
+	'{'
+		('cycleDef' cycleDef=Expression)
+		(
+			terminates?='terminates' |
+			'precondition' preconditions+=Expression |
+			'postcondition' postconditions+=Expression |
+			'uses' interfaces+=[Interface|QualifiedName] |
+			'provides' pInterfaces+=[Interface|QualifiedName] |
+			'requires' rInterfaces+=[Interface|QualifiedName] |
+			variableList+=VariableList |
+			nodes+=Node |
+			transitions+=Transition |
+			clocks+=Clock |
+			inputContext=InputContext |
+			outputContext=OutputContext
+		)*
+	'}'	
+;
+
+@Override
 Transition:
 	{Transition}
 	'transition' name=ID '{'
