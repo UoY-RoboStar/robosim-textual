@@ -18,11 +18,4 @@ class RoboSimStandaloneSetup extends RoboSimStandaloneSetupGenerated {
 		new RoboSimStandaloneSetup().createInjectorAndDoEMFRegistration()
 	}
 	
-	override register(Injector injector) {
-		if (!EPackage.Registry.INSTANCE.containsKey(RoboSimPackage.eNS_URI)) {
-			// this has been modified to register the custom factory for RoboChart
-			EPackage.Registry.INSTANCE.put(RoboSimPackage.eNS_URI, RoboSimPackage.eINSTANCE);
-		}
-		super.register(injector)
-	}
 }
