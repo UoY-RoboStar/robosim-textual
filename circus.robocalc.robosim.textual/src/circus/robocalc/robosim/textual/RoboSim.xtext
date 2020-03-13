@@ -37,10 +37,10 @@ ConstCycle returns Variable:
 @Override
 RCModule:
 	{SimModule}'module' name=ID '{'
-		('cycleDef' cycleDef=Expression)
 		(
 		connections+=Connection |
-		nodes+=ConnectionNode
+		nodes+=ConnectionNode |
+		'cycleDef' cycleDef=Expression
 	)*
 	'}'
 ;
@@ -49,7 +49,6 @@ RCModule:
 ControllerDef:
 	{SimControllerDef}'controller' name=ID 
 	'{'
-		('cycleDef' cycleDef=Expression)
 		(
 		'uses' interfaces+=[Interface|QualifiedName] |
 		'provides' pInterfaces+=[Interface|QualifiedName] |
@@ -59,7 +58,8 @@ ControllerDef:
 		lOperations+=OperationDef |
 		lOperations+=OperationRef |
 		machines+=StateMachine |
-		connections+=Connection
+		connections+=Connection |
+		'cycleDef' cycleDef=Expression
 	)*
 	'}'
 ;
@@ -68,15 +68,15 @@ ControllerDef:
 StateMachineDef:
 	{SimMachineDef}'stm' name=ID 
 	'{' 
-		('cycleDef' cycleDef=Expression)
 		(
 			'uses' interfaces+=[Interface|QualifiedName] |
 			'requires' rInterfaces+=[Interface|QualifiedName] |
 			variableList+=VariableList |
-			clocks+=Clock
+			clocks+=Clock |
+			inputContext=InputContext |
+			outputContext=OutputContext |
+			'cycleDef' cycleDef=Expression
 		)*
-		(inputContext=InputContext)?
-		(outputContext=OutputContext)?
 		(
 			nodes+=Node |
 			transitions+=Transition
@@ -93,7 +93,6 @@ OperationDef:
 		)?
 	')'
 	'{'
-		('cycleDef' cycleDef=Expression)
 		(
 			terminates?='terminates' |
 			'precondition' preconditions+=Expression |

@@ -3,6 +3,11 @@
  */
 package circus.robocalc.robosim.textual
 
+import com.google.inject.Injector
+import org.eclipse.emf.ecore.EPackage
+import circus.robocalc.robosim.RoboSimPackage
+import circus.robocalc.robosim.RoboSimFactory
+import org.eclipse.emf.ecore.EFactory
 
 /**
  * Initialization support for running Xtext languages without Equinox extension registry.
@@ -11,5 +16,13 @@ class RoboSimStandaloneSetup extends RoboSimStandaloneSetupGenerated {
 
 	def static void doSetup() {
 		new RoboSimStandaloneSetup().createInjectorAndDoEMFRegistration()
+	}
+	
+	override register(Injector injector) {
+		if (!EPackage.Registry.INSTANCE.containsKey(RoboSimPackage.eNS_URI)) {
+			// this has been modified to register the custom factory for RoboChart
+			EPackage.Registry.INSTANCE.put(RoboSimPackage.eNS_URI, RoboSimPackage.eINSTANCE);
+		}
+		super.register(injector)
 	}
 }
