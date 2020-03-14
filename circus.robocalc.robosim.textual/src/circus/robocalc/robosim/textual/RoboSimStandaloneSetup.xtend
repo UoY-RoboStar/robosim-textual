@@ -8,6 +8,8 @@ import org.eclipse.emf.ecore.EPackage
 import circus.robocalc.robosim.RoboSimPackage
 import circus.robocalc.robosim.RoboSimFactory
 import org.eclipse.emf.ecore.EFactory
+import circus.robocalc.robochart.textual.RoboChartStandaloneSetup
+import circus.robocalc.robosim.impl.RoboSimPackageImpl
 
 /**
  * Initialization support for running Xtext languages without Equinox extension registry.
@@ -18,4 +20,11 @@ class RoboSimStandaloneSetup extends RoboSimStandaloneSetupGenerated {
 		new RoboSimStandaloneSetup().createInjectorAndDoEMFRegistration()
 	}
 	
+	@Override
+	override createInjectorAndDoEMFRegistration() {
+		// No one would believe it, but from https://www.eclipse.org/forums/index.php/t/198335/
+		// it was sufficient to insert the following call for things to work..
+		RoboSimPackageImpl.init();
+		return super.createInjectorAndDoEMFRegistration();
+	}
 }
