@@ -22,9 +22,11 @@ class RoboSimStandaloneSetup extends RoboSimStandaloneSetupGenerated {
 	
 	@Override
 	override createInjectorAndDoEMFRegistration() {
+		
+		val robochartinj = super.createInjectorAndDoEMFRegistration();
 		// No one would believe it, but from https://www.eclipse.org/forums/index.php/t/198335/
 		// it was sufficient to insert the following call for things to work..
 		RoboSimPackageImpl.init();
-		return super.createInjectorAndDoEMFRegistration();
+		return robochartinj
 	}
 }
