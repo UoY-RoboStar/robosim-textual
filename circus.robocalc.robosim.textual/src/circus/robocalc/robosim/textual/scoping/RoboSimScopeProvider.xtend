@@ -20,6 +20,8 @@ import org.eclipse.xtext.scoping.Scopes
 import static circus.robocalc.robochart.RoboChartPackage.Literals.*
 import static circus.robocalc.robosim.RoboSimPackage.Literals.*
 import circus.robocalc.robochart.StateMachineDef
+import circus.robocalc.robosim.SimContext
+import circus.robocalc.robosim.SimOperationDef
 
 /**
  * This class contains custom scoping description.
@@ -35,15 +37,9 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 				case SIM_REF_EXP__ELEMENT : System.out.println("element")
 				case SIM_REF_EXP__PREDICATE: System.out.println("predicate")
 				case SIM_REF_EXP__EXP: System.out.println("exp")
-				case SIM_REF_EXP__VARIABLE: {
-					System.out.println("variable")
-					val result = delegateGetScope(context, reference)
-					return context.variablesDeclared(result)
-					}
+				case SIM_REF_EXP__VARIABLE: System.out.println("variable")
 			}
-		} else {
-			return super.getScope(context,reference)
-		}
+		} 
 		
 		val scope = context.resolveScope(reference)
  		//val scope = super.getScope(context,reference)
@@ -61,10 +57,6 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 		return super.getScope(context,reference)
 	}
 
-	def dispatch IScope resolveScope(EObject context, EReference reference) {
-		return super.getScope(context, reference)
-	}
-
 	def dispatch IScope nodesDeclared(EObject context, IScope result) {
 		return result
 	}
@@ -80,8 +72,16 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 		}
 		return r
 	}
-	
+
 	def dispatch IScope eventsDeclared(SimMachineDef n, IScope p) {
+		getEventsDeclared(n as SimContext, p)
+	}
+	
+	def dispatch IScope eventsDeclared(SimOperationDef n, IScope p) {
+		getEventsDeclared(n as SimContext, p)
+	}
+		
+	def IScope getEventsDeclared(SimContext n, IScope p) {
 		var finalScope = n.inputEventsDeclared(p)
 		finalScope = n.outputEventsDeclared(finalScope)
 		finalScope.scopesFor(
@@ -90,18 +90,27 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 		)
 		return finalScope
 	}
+	
 
 	def dispatch IScope operationsDeclared(SimMachineDef n, IScope p) {
+		getoperationsDeclared(n as SimContext, p)
+	}
+	
+	def dispatch IScope operationsDeclared(SimOperationDef n, IScope p) {
+		getoperationsDeclared(n as SimContext, p)
+	}
+
+	def dispatch IScope getoperationsDeclared(SimContext n, IScope p) {
 		var finalScope = n.outputOperationsDeclared(p)
 //		@author: Pedro
 //		NOTE: Commented out to include, in addition to this scope, that
 //			  already calculated by the RoboChartScopeProvider for
 // 			  operations. I believe a similar approach needs to be
 // 			  adopted for all other RoboSim elements.
-//		finalScope.scopesFor(
-//			n.interfaces.map[it.operations].flatten,
-//			n.RInterfaces.map[it.operations].flatten
-//		)
+		finalScope.scopesFor(
+			n.interfaces.map[it.operations].flatten,
+			n.RInterfaces.map[it.operations].flatten
+		)
 		return super.operationsDeclared(n as StateMachineDef, finalScope)
 	}
 
@@ -113,6 +122,14 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 	}
 
 	def dispatch IScope inputEventsDeclared(SimMachineDef n, IScope p) {
+		getinputEventsDeclared(n as SimContext, p)
+	}
+	
+	def dispatch IScope inputEventsDeclared(SimOperationDef n, IScope p) {
+		getinputEventsDeclared(n as SimContext, p)
+	}
+	
+	def dispatch IScope getinputEventsDeclared(SimContext n, IScope p) {
 		if (n.inputContext === null) {
 			return p
 		}
@@ -121,6 +138,7 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 			n.inputContext.interfaces.map[it.events].flatten
 		)
 	}
+	
 
 	def dispatch IScope outputEventsDeclared(EObject n, IScope p) {
 		if (n.eContainer !== null) {
@@ -130,6 +148,14 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 	}
 
 	def dispatch IScope outputEventsDeclared(SimMachineDef n, IScope p) {
+		getoutputEventsDeclared(n as SimContext, p)
+	}
+	
+	def dispatch IScope outputEventsDeclared(SimOperationDef n, IScope p) {
+		getoutputEventsDeclared(n as SimContext, p)
+	}
+
+	def dispatch IScope getoutputEventsDeclared(SimContext n, IScope p) {
 		if (n.outputContext === null) {
 			return p
 		}
@@ -148,6 +174,14 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 	}
 
 	def dispatch IScope outputOperationsDeclared(SimMachineDef n, IScope p) {
+		getoutputOperationsDeclared(n as SimContext, p)
+	}
+	
+	def dispatch IScope outputOperationsDeclared(SimOperationDef n, IScope p) {
+		getoutputOperationsDeclared(n as SimContext, p)
+	}
+
+	def dispatch IScope getoutputOperationsDeclared(SimContext n, IScope p) {
 		p.scopesFor(
 			n.outputContext.operations,
 			n.outputContext.interfaces.map[it.operations].flatten,
@@ -211,7 +245,10 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 			var s = variablesDeclared(context, result)
 			s = eventsDeclared(context,s)
 			return s
-		} 
+		} else if (reference == SIM_REF_EXP__VARIABLE) {
+			var s = variablesDeclared(context, result)
+			return s
+		}
 		return result
 	}
 
@@ -238,6 +275,15 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 //	}
 
 	def dispatch IScope variablesDeclared(SimMachineDef cont, IScope p) {
+		getvariablesDeclared(cont as SimContext,p)
+	}
+	
+	def dispatch IScope variablesDeclared(SimOperationDef cont, IScope p) {
+		var s = getvariablesDeclared(cont as SimContext,p)
+		return Scopes::scopeFor(cont.parameters, s)
+	}
+
+	def dispatch IScope getvariablesDeclared(SimContext cont, IScope p) {
 		var s = cont.eContainer.variablesDeclared(p)
 		val outputContextVariables = if (cont.outputContext === null) {
 				Collections.emptyList
@@ -247,11 +293,15 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 //		var constCol = new HashSet<Variable>();
 //		val c = cont.const
 //		constCol.add(c)
-		s.scopesFor(
+		return s.scopesFor(
 			//constCol,
 			cont.variableList.map[it.vars].flatten,
 			cont.RInterfaces.map[it.variableList].flatten.map[it.vars].flatten,
 			outputContextVariables
 		)
+	}
+	
+	def dispatch IScope resolveScope(EObject context, EReference reference) {
+		return super.getScope(context, reference)
 	}
 }
