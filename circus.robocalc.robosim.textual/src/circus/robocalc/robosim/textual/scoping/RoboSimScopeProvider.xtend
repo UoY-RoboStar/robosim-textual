@@ -35,7 +35,11 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 				case SIM_REF_EXP__ELEMENT : System.out.println("element")
 				case SIM_REF_EXP__PREDICATE: System.out.println("predicate")
 				case SIM_REF_EXP__EXP: System.out.println("exp")
-				case SIM_REF_EXP__VARIABLE: System.out.println("variable")
+				case SIM_REF_EXP__VARIABLE: {
+					System.out.println("variable")
+					val result = delegateGetScope(context, reference)
+					return context.variablesDeclared(result)
+					}
 			}
 		} else {
 			return super.getScope(context,reference)
