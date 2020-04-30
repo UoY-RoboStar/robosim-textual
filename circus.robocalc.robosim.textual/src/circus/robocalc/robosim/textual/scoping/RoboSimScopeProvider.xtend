@@ -89,7 +89,7 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 			n.interfaces.map[it.events].flatten
 		)
 		return finalScope
-	}
+      }
 	
 
 	def dispatch IScope operationsDeclared(SimMachineDef n, IScope p) {
@@ -111,7 +111,8 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 			n.interfaces.map[it.operations].flatten,
 			n.RInterfaces.map[it.operations].flatten
 		)
-		return super.operationsDeclared(n as StateMachineDef, finalScope)
+		//return super.operationsDeclared(n as StateMachineDef, finalScope)
+	    return finalScope
 	}
 
 	def dispatch IScope inputEventsDeclared(EObject n, IScope p) {
