@@ -152,7 +152,7 @@ Neg returns Expression:
 	|
 	{CycleExp} 'cycle'
 	|
-	Selection
+	Selection 
 ;
  
 @Override
