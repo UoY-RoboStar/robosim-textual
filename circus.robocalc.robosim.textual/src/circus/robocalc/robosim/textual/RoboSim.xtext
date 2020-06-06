@@ -17,7 +17,7 @@ InputContext returns Context:
 	'}'
 ;
 
-OutputContext returns Context:
+OutputContext returns Context: 
 	{OutputContext}
 	'output' 'context' '{'
 		(
