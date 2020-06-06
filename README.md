@@ -35,3 +35,4 @@ Whenever updating the tool, follow these steps:
         3. Change the tool manual
 
 If changes to documentations are not possible immediately, create issues indicating exactly what needs to be done.
+
