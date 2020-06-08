@@ -153,6 +153,7 @@ Neg returns Expression:
 	{CycleExp} 'cycle'
 	|
 	Selection 
+//	| {SimRefExpRS} '$' ref=[NamedExpression]
 ;
  
 @Override
@@ -168,6 +169,7 @@ SimRefExp returns Expression:
 		('?' variable=[Variable|QualifiedName] (':' predicate=Atomic)?)
 	)?
 ;
+
 
 //@Override
 //Atomic returns Expression:
@@ -187,7 +189,7 @@ SimRefExp returns Expression:
 //			('!'|'.') value=Atomic
 //		)?
 //;
-
+ 
 @Override
 SendEvent:
 	('send')? '$' trigger=ActualTrigger
