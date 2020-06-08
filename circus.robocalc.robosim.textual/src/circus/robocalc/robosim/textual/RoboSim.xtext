@@ -23,7 +23,7 @@ OutputContext returns Context:
 		(
 			'uses' interfaces+=[Interface|QualifiedName] |
 			'requires' rInterfaces+=[Interface|QualifiedName] |
-			events+=Event
+			events+=Event 
 		)*
 	'}'
 ;
