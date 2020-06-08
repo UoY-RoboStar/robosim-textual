@@ -25,7 +25,7 @@ OutputContext returns Context:
 			'requires' rInterfaces+=[Interface|QualifiedName] |
 			events+=Event 
 		)*
-	'}'
+	'}' 
 ;
 
 @Override
