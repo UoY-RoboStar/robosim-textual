@@ -31,7 +31,7 @@ import org.eclipse.xtext.generator.IGeneratorContext
  */
 class RoboSimGenerator extends AbstractGenerator {
 
-	static val GEN_ID = "robosim.generator"
+	static val GEN_ID = "circus.robocalc.robosim.textual.robosim.generator"
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		val config = Platform.extensionRegistry.getConfigurationElementsFor(GEN_ID);
