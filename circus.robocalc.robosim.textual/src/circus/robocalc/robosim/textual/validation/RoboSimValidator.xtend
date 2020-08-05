@@ -274,6 +274,7 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 //		])
 //	}
 
+/* Commented 05/08 MSCF
 	@Check
 	def missingDeclaredInterface(ControllerDef c) {
 		c.missingInterfaces([it.interfaces], [
@@ -284,6 +285,8 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 			)
 		])
 	}
+	
+	*/
 
 	@Check
 	def outputInterfaceMustHaveOnlyEventsAndOperations(SimContext sm) {
