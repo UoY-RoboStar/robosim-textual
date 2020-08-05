@@ -298,6 +298,7 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 			//constCol,
 			cont.variableList.map[it.vars].flatten,
 			cont.RInterfaces.map[it.variableList].flatten.map[it.vars].flatten,
+			cont.interfaces.map[it.variableList].flatten.map[it.vars].flatten,
 			outputContextVariables
 		)
 	}
