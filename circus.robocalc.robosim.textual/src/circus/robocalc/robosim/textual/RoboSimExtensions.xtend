@@ -221,6 +221,24 @@ class RoboSimExtensions {
 		return names;
 	}
 	
+	def dispatch EList<String> outputEvents(SimMachineDef context) {
+		//val EList<String> resInpEvs = new BasicEList<String>();
+		
+		//val names = new ArrayList<String>();
+		val names = new BasicEList<String>();
+		val evs = new BasicEList<Event>();
+		evs.addAll(context.outputContext.events)
+		context.outputContext.interfaces.forEach[evs.addAll(it.events)]
+		for (ev : evs) {
+			//var nm = context.name + "_";
+			var nm = ev.name;
+			names.add(nm);
+		}
+		
+		//resInpEvs.addAll(names);
+		return names;
+	}
+	
 	def dispatch EList<String> inputEvents(SimControllerDef context) {
 		//val EList<String> resInpEvs = new BasicEList<String>();
 		
