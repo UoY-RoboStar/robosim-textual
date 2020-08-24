@@ -65,6 +65,9 @@ import circus.robocalc.robochart.StateMachineDef
 import circus.robocalc.robochart.OperationDef
 import circus.robocalc.robochart.OperationRef
 import circus.robocalc.robosim.SimContext
+import circus.robocalc.robochart.SendEvent
+import org.eclipse.xtext.formatting.INodeModelFormatter.IFormattedRegion
+import circus.robocalc.robosim.SimRefExp
 
 /**
  * This class contains custom validation rules. 
@@ -91,7 +94,8 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 	@Inject extension RoboSimExtensions
 	
 	var List<Variable> consts = new ArrayList<Variable>();
-
+	var List<String> inpEvs = new ArrayList<String>();
+    var List<String> outEvs = new ArrayList<String>();
 
 	def checkUniquenessInProject(NamedElement o) {
 		val project = o.eResource.URI.segment(1)
@@ -336,6 +340,72 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 //			
 //			
 //		}
+
+
+         @Check
+         def OnlyOutputEventInActions(StateMachine stm, Transition t) {
+          val tAction = t.action;
+          val inp = stm.context.inputEvents;
+          System.out.println("Input events " + inp);
+          
+         	
+         }
+         
+         
+         @Check
+         def collectEvents(StateMachine stm){
+           val inputEvs = stm.inputEvents;
+          
+         	 //stm.outputEvents;
+         	val outputEvs = (stm as SimMachineDef).outputEvents 
+           inpEvs.addAll(inputEvs);
+           outEvs.addAll(outputEvs);
+       //   val outputEvs = stm.outputEvents;
+          
+         }
+         
+//         @Check
+//         def OnlyOutputEventInActions(StateMachine stm, SendEvent ev) {
+//          //val tAction = t.action;
+//          
+//          val inp = stm.context.inputEvents;
+//          System.out.println("Input events " + inp);
+//          for (i : inp){
+//          	System.out.println(i);
+//          	System.out.println(ev.name);
+//          }
+//          
+//         	
+//         }
+         
+          @Check
+         def noInputEventInActions(SendEvent ev) {    
+          	System.out.println(ev.trigger.event.name);
+          	if (inpEvs.contains(ev.trigger.event.name)){
+             	val msg = ' The input event ' + ev.trigger.event.name + ' cannot be used in an action';
+          	error(
+					msg,
+					RoboChartPackage.Literals.SEND_EVENT__TRIGGER,
+					'SendEventError'
+				)
+          	}
+     	
+         }
+
+      @Check
+         def noOutputEventInConditions(SimRefExp ev) {
+          	if (outEvs.contains(ev.element.name)){
+          		val msg = ' The output event ' + ev.element.name + ' cannot be used in a condition';
+          	error(
+					msg,
+					RoboSimPackage.Literals.SIM_REF_EXP__ELEMENT,
+					'ConditionError'
+				)
+          	}
+          	
+          }
+                  	
+       
 
 		@Check
 		override def transitionWellTyped(Transition t) {
