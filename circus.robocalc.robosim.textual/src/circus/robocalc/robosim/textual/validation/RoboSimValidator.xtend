@@ -342,22 +342,15 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 //		}
 
 
-         @Check
-         def OnlyOutputEventInActions(StateMachine stm, Transition t) {
-          val tAction = t.action;
-          val inp = stm.context.inputEvents;
-          System.out.println("Input events " + inp);
-          
-         	
-         }
+         
          
          
          @Check
-         def collectEvents(StateMachine stm){
-           val inputEvs = stm.inputEvents;
+         def collectEvents(SimMachineDef stm){
+           val inputEvs = stm.inputEventsRS;
           
-         	 //stm.outputEvents;
-         	val outputEvs = (stm as SimMachineDef).outputEvents 
+         	 //stm.outputEvents; (stm as SimMachineDef).
+         	val outputEvs = stm.outputEventsRS;
            inpEvs.addAll(inputEvs);
            outEvs.addAll(outputEvs);
        //   val outputEvs = stm.outputEvents;
@@ -399,7 +392,7 @@ class RoboSimValidator extends AbstractRoboSimValidator {
           	error(
 					msg,
 					RoboSimPackage.Literals.SIM_REF_EXP__ELEMENT,
-					'ConditionError'
+					'SimRefExpError'
 				)
           	}
           	
