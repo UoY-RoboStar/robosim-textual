@@ -65,9 +65,10 @@ import circus.robocalc.robochart.StateMachineDef
 import circus.robocalc.robochart.OperationDef
 import circus.robocalc.robochart.OperationRef
 import circus.robocalc.robosim.SimContext
-import circus.robocalc.robochart.SendEvent
 import org.eclipse.xtext.formatting.INodeModelFormatter.IFormattedRegion
 import circus.robocalc.robosim.SimRefExp
+import circus.robocalc.robochart.CommunicationStmt
+import circus.robocalc.robosim.OutputCommunication
 
 /**
  * This class contains custom validation rules. 
@@ -371,14 +372,23 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 //         	
 //         }
          
+         @Check
+         def noCommunicationStmt(CommunicationStmt stmt) {
+         	error(
+					"Communication statements are not allowed in RoboSim.",
+					RoboChartPackage.Literals.COMMUNICATION_STMT__COMMUNICATION,
+					'CommunicationStmt'
+				)
+         }
+         
           @Check
-         def noInputEventInActions(SendEvent ev) {    
-          	System.out.println(ev.trigger.event.name);
-          	if (inpEvs.contains(ev.trigger.event.name)){
-             	val msg = ' The input event ' + ev.trigger.event.name + ' cannot be used in an action';
+         def noInputEventInActions(OutputCommunication ocomm) {    
+          	System.out.println(ocomm.event.name);
+          	if (inpEvs.contains(ocomm.event.name)){
+             	val msg = ' The input event ' + ocomm.event.name + ' cannot be used as an output communication because it is not an output event';
           	error(
 					msg,
-					RoboChartPackage.Literals.SEND_EVENT__TRIGGER,
+					RoboSimPackage.Literals.OUTPUT_COMMUNICATION__EVENT,
 					'SendEventError'
 				)
           	}

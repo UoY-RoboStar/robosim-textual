@@ -144,7 +144,7 @@ Transition:
 	'}'
 ;
 
-ExecTrigger returns Trigger:
+ExecTrigger returns Communication:
 	{ExecTrigger}
 	('exec')
 ;
@@ -201,21 +201,23 @@ SimRefExp returns Expression:
 //;
 //
 ////CommandEventCall:
-//OutputCommunication:
-//	('send'?) '$' event=[Event|QualifiedName]
-//		(
-//			('!'|'.') value=Atomic
-//		)?
-//;
- 
-@Override
-SendEvent:
-	('send')? '$' trigger=ActualTrigger
+
+OutputCommunication:
+	('send'?) '$' event=[Event|QualifiedName]
+		(
+			('!'|'.') value=Atomic
+		)?
 ;
+ 
+//@Override
+//CommunicationStmt:
+//	('send')? '$' communication=Communication
+//;
 
 @Override
 BasicStatement returns Statement:
 	{ExecStatement} 'exec' |
+	OutputCommunication |
 	super::BasicStatement
 ;
 
