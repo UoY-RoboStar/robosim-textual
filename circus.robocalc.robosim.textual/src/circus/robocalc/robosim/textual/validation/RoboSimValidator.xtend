@@ -94,9 +94,9 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 	
 	@Inject extension RoboSimExtensions
 	
-	var List<Variable> consts = new ArrayList<Variable>();
-	var List<String> inpEvs = new ArrayList<String>();
-    var List<String> outEvs = new ArrayList<String>();
+//	var List<Variable> consts = new ArrayList<Variable>();
+//	var List<String> inpEvs = new ArrayList<String>();
+//    var List<String> outEvs = new ArrayList<String>();
 
 	def checkUniquenessInProject(NamedElement o) {
 		val project = o.eResource.URI.segment(1)
@@ -346,17 +346,17 @@ class RoboSimValidator extends AbstractRoboSimValidator {
          
          
          
-         @Check
-         def collectEvents(SimMachineDef stm){
-           val inputEvs = stm.inputEventsRS;
-          
-         	 //stm.outputEvents; (stm as SimMachineDef).
-         	val outputEvs = stm.outputEventsRS;
-           inpEvs.addAll(inputEvs);
-           outEvs.addAll(outputEvs);
-       //   val outputEvs = stm.outputEvents;
-          
-         }
+//         @Check
+//         def collectEvents(SimMachineDef stm){
+//           val inputEvs = stm.inputEventsRS;
+//          
+//         	 //stm.outputEvents; (stm as SimMachineDef).
+//         	val outputEvs = stm.outputEventsRS;
+//           inpEvs.addAll(inputEvs);
+//           outEvs.addAll(outputEvs);
+//       //   val outputEvs = stm.outputEvents;
+//          
+//         }
          
 //         @Check
 //         def OnlyOutputEventInActions(StateMachine stm, SendEvent ev) {
@@ -381,31 +381,44 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 				)
          }
          
+         def dispatch SimContext getSimContext(SimContext sim) {
+         	return sim
+         }
+         
+         def dispatch SimContext getSimContext(EObject o) {
+         	if (o !== null)
+         		return o.eContainer.getSimContext
+         }
+         
           @Check
          def noInputEventInActions(OutputCommunication ocomm) {    
-          	System.out.println(ocomm.event.name);
-          	if (inpEvs.contains(ocomm.event.name)){
-             	val msg = ' The input event ' + ocomm.event.name + ' cannot be used as an output communication because it is not an output event';
-          	error(
-					msg,
-					RoboSimPackage.Literals.OUTPUT_COMMUNICATION__EVENT,
-					'SendEventError'
-				)
-          	}
-     	
+         	val context = getSimContext(ocomm)
+          	//System.out.println(ocomm.event.name);
+          	if (context !== null) {
+	          	if (context.inputEventsRS.contains(ocomm.event.name)){
+	             	val msg = ' The input event ' + ocomm.event.name + ' cannot be used as an output communication because it is not an output event';
+	          	error(
+						msg,
+						RoboSimPackage.Literals.OUTPUT_COMMUNICATION__EVENT,
+						'CommunicationStmtError'
+					)
+	          	}
+     		}
          }
 
       @Check
          def noOutputEventInConditions(SimRefExp ev) {
-          	if (outEvs.contains(ev.element.name)){
-          		val msg = ' The output event ' + ev.element.name + ' cannot be used in a condition';
-          	error(
-					msg,
-					RoboSimPackage.Literals.SIM_REF_EXP__ELEMENT,
-					'SimRefExpError'
-				)
+         	val context = getSimContext(ev)
+         	if (context !== null) {
+	          	if (context.outputEventsRS.contains(ev.element.name)){
+	          		val msg = ' The output event ' + ev.element.name + ' cannot be used in a condition';
+	          	error(
+						msg,
+						RoboSimPackage.Literals.SIM_REF_EXP__ELEMENT,
+						'SimRefExpError'
+					)
+	          	}
           	}
-          	
           }
                   	
        

@@ -22,6 +22,7 @@ import static circus.robocalc.robosim.RoboSimPackage.Literals.*
 import circus.robocalc.robochart.StateMachineDef
 import circus.robocalc.robosim.SimContext
 import circus.robocalc.robosim.SimOperationDef
+import circus.robocalc.robosim.OutputCommunication
 
 /**
  * This class contains custom scoping description.
@@ -208,16 +209,16 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 //		return result
 //	}
 //	
-//	def dispatch IScope resolveScope(OutputCommunication context, EReference reference) {
-//		val result = delegateGetScope(context, reference)
-//		//if (reference == COMMAND_EVENT_CALL__EVENT) {
-//		//	return context.eContainer.outputEventsDeclared(result)
-//		//}
-//		if (reference == OUTPUT_COMMUNICATION__EVENT) {
-//			return context.eContainer.outputEventsDeclared(result)
-//		}
-//		return result
-//	}
+	def dispatch IScope resolveScope(OutputCommunication context, EReference reference) {
+		val result = delegateGetScope(context, reference)
+		//if (reference == COMMAND_EVENT_CALL__EVENT) {
+		//	return context.eContainer.outputEventsDeclared(result)
+		//}
+		if (reference == OUTPUT_COMMUNICATION__EVENT) {
+			return context.eContainer.outputEventsDeclared(result)
+		}
+		return result
+	}
 
 	def dispatch IScope declaredNodes(SimMachineDef context, IScope scope) {
 		return Scopes::scopeFor(context.nodes, scope)
