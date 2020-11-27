@@ -65,9 +65,10 @@ import circus.robocalc.robochart.StateMachineDef
 import circus.robocalc.robochart.OperationDef
 import circus.robocalc.robochart.OperationRef
 import circus.robocalc.robosim.SimContext
-import circus.robocalc.robochart.SendEvent
 import org.eclipse.xtext.formatting.INodeModelFormatter.IFormattedRegion
 import circus.robocalc.robosim.SimRefExp
+import circus.robocalc.robochart.CommunicationStmt
+import circus.robocalc.robosim.OutputCommunication
 
 /**
  * This class contains custom validation rules. 
@@ -93,9 +94,9 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 	
 	@Inject extension RoboSimExtensions
 	
-	var List<Variable> consts = new ArrayList<Variable>();
-	var List<String> inpEvs = new ArrayList<String>();
-    var List<String> outEvs = new ArrayList<String>();
+//	var List<Variable> consts = new ArrayList<Variable>();
+//	var List<String> inpEvs = new ArrayList<String>();
+//    var List<String> outEvs = new ArrayList<String>();
 
 	def checkUniquenessInProject(NamedElement o) {
 		val project = o.eResource.URI.segment(1)
@@ -345,17 +346,17 @@ class RoboSimValidator extends AbstractRoboSimValidator {
          
          
          
-         @Check
-         def collectEvents(SimMachineDef stm){
-           val inputEvs = stm.inputEventsRS;
-          
-         	 //stm.outputEvents; (stm as SimMachineDef).
-         	val outputEvs = stm.outputEventsRS;
-           inpEvs.addAll(inputEvs);
-           outEvs.addAll(outputEvs);
-       //   val outputEvs = stm.outputEvents;
-          
-         }
+//         @Check
+//         def collectEvents(SimMachineDef stm){
+//           val inputEvs = stm.inputEventsRS;
+//          
+//         	 //stm.outputEvents; (stm as SimMachineDef).
+//         	val outputEvs = stm.outputEventsRS;
+//           inpEvs.addAll(inputEvs);
+//           outEvs.addAll(outputEvs);
+//       //   val outputEvs = stm.outputEvents;
+//          
+//         }
          
 //         @Check
 //         def OnlyOutputEventInActions(StateMachine stm, SendEvent ev) {
@@ -371,31 +372,53 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 //         	
 //         }
          
-          @Check
-         def noInputEventInActions(SendEvent ev) {    
-          	System.out.println(ev.trigger.event.name);
-          	if (inpEvs.contains(ev.trigger.event.name)){
-             	val msg = ' The input event ' + ev.trigger.event.name + ' cannot be used in an action';
-          	error(
-					msg,
-					RoboChartPackage.Literals.SEND_EVENT__TRIGGER,
-					'SendEventError'
+         @Check
+         def noCommunicationStmt(CommunicationStmt stmt) {
+         	error(
+					"Communication statements are not allowed in RoboSim.",
+					RoboChartPackage.Literals.COMMUNICATION_STMT__COMMUNICATION,
+					'CommunicationStmt'
 				)
-          	}
-     	
+         }
+         
+         def dispatch SimContext getSimContext(SimContext sim) {
+         	return sim
+         }
+         
+         def dispatch SimContext getSimContext(EObject o) {
+         	if (o !== null)
+         		return o.eContainer.getSimContext
+         }
+         
+          @Check
+         def noInputEventInActions(OutputCommunication ocomm) {    
+         	val context = getSimContext(ocomm)
+          	//System.out.println(ocomm.event.name);
+          	if (context !== null) {
+	          	if (context.inputEventsRS.contains(ocomm.event.name)){
+	             	val msg = ' The input event ' + ocomm.event.name + ' cannot be used as an output communication because it is not an output event';
+	          	error(
+						msg,
+						RoboSimPackage.Literals.OUTPUT_COMMUNICATION__EVENT,
+						'CommunicationStmtError'
+					)
+	          	}
+     		}
          }
 
       @Check
          def noOutputEventInConditions(SimRefExp ev) {
-          	if (outEvs.contains(ev.element.name)){
-          		val msg = ' The output event ' + ev.element.name + ' cannot be used in a condition';
-          	error(
-					msg,
-					RoboSimPackage.Literals.SIM_REF_EXP__ELEMENT,
-					'SimRefExpError'
-				)
+         	val context = getSimContext(ev)
+         	if (context !== null) {
+	          	if (context.outputEventsRS.contains(ev.element.name)){
+	          		val msg = ' The output event ' + ev.element.name + ' cannot be used in a condition';
+	          	error(
+						msg,
+						RoboSimPackage.Literals.SIM_REF_EXP__ELEMENT,
+						'SimRefExpError'
+					)
+	          	}
           	}
-          	
           }
                   	
        

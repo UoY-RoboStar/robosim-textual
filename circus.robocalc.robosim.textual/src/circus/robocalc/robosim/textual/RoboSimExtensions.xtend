@@ -22,6 +22,7 @@ import java.util.function.Function
 import org.eclipse.emf.common.util.BasicEList
 import org.eclipse.emf.common.util.EList
 import org.eclipse.emf.ecore.EObject
+import circus.robocalc.robosim.SimContext
 
 class RoboSimExtensions {
 	/*
@@ -203,7 +204,7 @@ class RoboSimExtensions {
 	/*
 	 * return 
 	 */
-	def dispatch EList<String> inputEvents(SimMachineDef context) {
+	def dispatch EList<String> inputEvents(SimContext context) {
 		//val EList<String> resInpEvs = new BasicEList<String>();
 		
 		//val names = new ArrayList<String>();
@@ -221,7 +222,7 @@ class RoboSimExtensions {
 		return names;
 	}
 	
-	def dispatch EList<String> inputEventsRS(SimMachineDef context) {
+	def dispatch EList<String> inputEventsRS(SimContext context) {
 		//val EList<String> resInpEvs = new BasicEList<String>();
 		
 		//val names = new ArrayList<String>();
@@ -239,7 +240,7 @@ class RoboSimExtensions {
 		return names;
 	}
 	
-	def dispatch EList<String> outputEventsRS(SimMachineDef context) {
+	def dispatch EList<String> outputEventsRS(SimContext context) {
 		//val EList<String> resInpEvs = new BasicEList<String>();
 		
 		//val names = new ArrayList<String>();
@@ -257,7 +258,7 @@ class RoboSimExtensions {
 		return names;
 	}
 	
-	def dispatch EList<String> outputEvents(SimMachineDef context) {
+	def dispatch EList<String> outputEvents(SimContext context) {
 		//val EList<String> resInpEvs = new BasicEList<String>();
 		
 		//val names = new ArrayList<String>();
