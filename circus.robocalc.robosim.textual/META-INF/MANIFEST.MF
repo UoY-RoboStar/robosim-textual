@@ -3,7 +3,7 @@ Automatic-Module-Name: circus.robocalc.robosim.textual
 Bundle-ManifestVersion: 2
 Bundle-Name: RoboSim Textual Editor Plugin
 Bundle-Vendor: RoboCalc Project
-Bundle-Version: 2.0.0.qualifier
+Bundle-Version: 3.0.0.qualifier
 Bundle-SymbolicName: circus.robocalc.robosim.textual; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.xtext,
