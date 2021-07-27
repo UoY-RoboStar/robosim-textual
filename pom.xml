@@ -290,7 +290,7 @@
         </repository>
 		<repository>
             <id>robochart-textual</id>
-            <url>https://www.cs.york.ac.uk/robostar/robotool/textual/comp/</url>
+            <url>https://www.cs.york.ac.uk/robostar/robotool/textual/update/</url>
             <layout>p2</layout>
         </repository>
 		<repository>
