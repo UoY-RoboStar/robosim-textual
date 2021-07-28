@@ -3,7 +3,7 @@ Automatic-Module-Name: circus.robocalc.robosim.textual.ui
 Bundle-ManifestVersion: 2
 Bundle-Name: RoboSim Textual Editor UI Plugin
 Bundle-Vendor: RoboCalc Project
-Bundle-Version: 2.0.0.qualifier
+Bundle-Version: 3.0.0.qualifier
 Bundle-SymbolicName: circus.robocalc.robosim.textual.ui; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: circus.robocalc.robosim.textual,
@@ -19,7 +19,7 @@ Require-Bundle: circus.robocalc.robosim.textual,
  org.eclipse.xtext.builder,
  org.eclipse.xtext.xbase.lib;bundle-version="2.14.0",
  org.eclipse.xtend.lib;bundle-version="2.14.0";resolution:=optional,
- circus.robocalc.robochart.textual.ui;bundle-version="2.0.0"
+ circus.robocalc.robochart.textual.ui;bundle-version="3.0.0"
 Import-Package: org.apache.log4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: circus.robocalc.robosim.textual.ui.quickfix,

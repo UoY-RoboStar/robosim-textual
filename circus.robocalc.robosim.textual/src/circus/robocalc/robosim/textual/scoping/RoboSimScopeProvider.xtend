@@ -184,6 +184,9 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 	}
 
 	def dispatch IScope getoutputOperationsDeclared(SimContext n, IScope p) {
+		if (n.outputContext === null) {
+			return p
+		}		
 		p.scopesFor(
 			n.outputContext.operations,
 			n.outputContext.interfaces.map[it.operations].flatten,

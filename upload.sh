@@ -15,8 +15,8 @@ else
   update=$WERCKER_GIT_BRANCH
 fi
 
-if [[ $version = *[!\ ]* ]]; 
-then 
+if [[ $version = *[!\ ]* ]];
+then
   echo "Current version:" $version;
   echo "Branch:" $WERCKER_GIT_BRANCH;
   dest=${update}_${version}
