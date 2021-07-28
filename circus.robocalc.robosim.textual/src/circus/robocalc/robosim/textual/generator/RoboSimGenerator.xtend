@@ -3,7 +3,6 @@
  */
 package circus.robocalc.robosim.textual.generator
 
-import circus.robocalc.robochart.textual.generator.AbstractRoboChartGenerator
 import org.eclipse.core.runtime.CoreException
 import org.eclipse.core.runtime.ISafeRunnable
 import org.eclipse.core.runtime.Platform
@@ -20,7 +19,7 @@ import org.eclipse.xtext.generator.IGeneratorContext
  * 
  * New generators can be implemented by contributing a subclass of
  * {@link AbstractRoboChartGenerator} to the extension point
- * {@code robochart.generator}.
+ * {@code robosim.generator}.
  * 
  * @author Alvaro Miyazawa 
  * @version 2.0
@@ -38,7 +37,7 @@ class RoboSimGenerator extends AbstractGenerator {
 		try {
 			for (e : config) {
 				val o = e.createExecutableExtension("class")
-				if (o instanceof AbstractGenerator) {
+				if (o instanceof IAbstractRoboSimGenerator && o instanceof AbstractGenerator) {
 					// executing generator
 					val runnable = new ISafeRunnable() {
 						override void handleException(Throwable e) {
