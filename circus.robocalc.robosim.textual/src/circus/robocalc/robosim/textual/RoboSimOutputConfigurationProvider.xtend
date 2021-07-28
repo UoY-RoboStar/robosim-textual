@@ -4,6 +4,8 @@ import circus.robocalc.robochart.textual.generator.AbstractRoboChartGenerator
 import org.eclipse.core.runtime.Platform
 import org.eclipse.xtext.generator.OutputConfiguration
 import org.eclipse.xtext.generator.OutputConfigurationProvider
+import circus.robocalc.robosim.textual.generator.AbstractRoboSimGenerator
+import circus.robocalc.robosim.textual.generator.IAbstractRoboSimGenerator
 
 /**
  * This class searches for all robochart generators provided by plugins,
@@ -19,15 +21,15 @@ class RoboSimOutputConfigurationProvider extends OutputConfigurationProvider {
 	public static val NOT_DERIVED = "NOT_DERIVED"
 	public static val DERIVED = "DERIVED"
 
-	static val GEN_ID = "robosim.generator"
+	static val GEN_ID = "circus.robocalc.robosim.textual.robosim.generator"
 	
 	override getOutputConfigurations() {
 		val config = Platform.extensionRegistry.getConfigurationElementsFor(GEN_ID);
 		val ocp = super.getOutputConfigurations()
 		for (e : config) {
-			val folder = e.getAttribute("folder") ?: "src-gen"
+			val folder = e.getAttribute("folder") ?: "csp-gen/sim"
 			val o = e.createExecutableExtension("class")
-			if (o instanceof AbstractRoboChartGenerator) {
+			if (o instanceof IAbstractRoboSimGenerator) {
 				val dc = new OutputConfiguration(o.ID);
 				dc.setDescription("Configuration for generator "+o.class.name);
 				dc.setOutputDirectory("./"+folder);

@@ -9,6 +9,7 @@ import circus.robocalc.robochart.textual.scoping.RoboChartImportedNamespaceAware
 import circus.robocalc.robosim.textual.scoping.RoboSimScopeProvider
 import com.google.inject.Binder
 import com.google.inject.name.Names
+import org.eclipse.xtext.generator.IOutputConfigurationProvider
 import org.eclipse.xtext.naming.IQualifiedNameConverter
 import org.eclipse.xtext.scoping.IGlobalScopeProvider
 import org.eclipse.xtext.scoping.IScopeProvider
@@ -27,6 +28,9 @@ class RoboSimRuntimeModule extends AbstractRoboSimRuntimeModule {
 	override Class<? extends IScopeProvider> bindIScopeProvider() {
 		return RoboSimScopeProvider
 	}
+	def Class<? extends IOutputConfigurationProvider> bindIOutputConfigurationProvider() {
+		return RoboSimOutputConfigurationProvider
+	}	
 	
 	override void configureIScopeProviderDelegate(Binder binder) {
 		binder.bind(IScopeProvider)
