@@ -23,6 +23,11 @@ import circus.robocalc.robochart.StateMachineDef
 import circus.robocalc.robosim.SimContext
 import circus.robocalc.robosim.SimOperationDef
 import circus.robocalc.robosim.OutputCommunication
+import circus.robocalc.robochart.Communication
+import circus.robocalc.robochart.RCPackage
+import circus.robocalc.robochart.Event
+import java.util.ArrayList
+import circus.robocalc.robosim.ExecTrigger
 
 /**
  * This class contains custom scoping description.
@@ -305,6 +310,34 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 			cont.interfaces.map[it.variableList].flatten.map[it.vars].flatten,
 			outputContextVariables
 		)
+	}
+	
+	def dispatch IScope resolveScope(ExecTrigger context, EReference reference) {
+		
+		// Output communications
+//		val result = delegateGetScope(context, reference)
+//		val outScope = context.eContainer.outputEventsDeclared(result)
+		
+		// Or 'exec' from the built-in library
+		val resources = context.eResource.resourceSet.resources
+		var events = new ArrayList<Event>()
+		
+		for (r : resources) {
+			if ((r.URI.toString).endsWith("/score.rst") 
+				&& r.contents.size() > 0 
+				&& r.contents.get(0) instanceof RCPackage 
+				&& r.contents.get(0) !== context
+				&& (r.contents.get(0) as RCPackage).name.equals("score")
+			) {
+				val rpkg = r.contents.get(0) as RCPackage
+				for (i : rpkg.interfaces) {
+					events.addAll(i.events)
+				}
+			}
+		}
+		
+		//val execScope = Scopes.scopeFor(events, outScope)
+		return Scopes::scopeFor(events)
 	}
 	
 	def dispatch IScope resolveScope(EObject context, EReference reference) {

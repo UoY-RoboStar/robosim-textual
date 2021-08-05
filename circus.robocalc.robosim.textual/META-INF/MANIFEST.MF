@@ -20,12 +20,13 @@ Require-Bundle: org.eclipse.xtext,
  org.eclipse.core.runtime;bundle-version="3.15.200"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: circus.robocalc.robosim.textual,
- circus.robocalc.robosim.textual.services,
+ circus.robocalc.robosim.textual.formatting2,
+ circus.robocalc.robosim.textual.generator,
+ circus.robocalc.robosim.textual.parser.antlr,
+ circus.robocalc.robosim.textual.parser.antlr.internal,
  circus.robocalc.robosim.textual.scoping,
  circus.robocalc.robosim.textual.serializer,
+ circus.robocalc.robosim.textual.services,
  circus.robocalc.robosim.textual.validation,
- circus.robocalc.robosim.textual.generator,
- circus.robocalc.robosim.textual.parser.antlr.internal,
- circus.robocalc.robosim.textual.parser.antlr,
- circus.robocalc.robosim.textual.formatting2
+ robosim
 Import-Package: org.apache.log4j
