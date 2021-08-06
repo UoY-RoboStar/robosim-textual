@@ -103,13 +103,15 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 		val c = rds.allResourceDescriptions.filter[rd|rd.URI.segment(1) == project].map [ rd |
 			rd.getExportedObjects(o.eClass, qnp.getFullyQualifiedName(o), false).toSet
 		].reduce[p1, p2|p1.addAll(p2); return p1]
-		val s = c.size
-		if (s > 1) {
-			warning(
-				'''There is more than one element with name '«qnp.getFullyQualifiedName(o)»'.''',
-				RoboChartPackage.Literals.NAMED_ELEMENT__NAME,
-				'UniqueQualifiedName'
-			)
+		if (c !== null) {
+			val s = c.size
+			if (s > 1) {
+				warning(
+					'''There is more than one element with name '«qnp.getFullyQualifiedName(o)»'.''',
+					RoboChartPackage.Literals.NAMED_ELEMENT__NAME,
+					'UniqueQualifiedName'
+				)
+			}
 		}
 	}
 
@@ -117,13 +119,15 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 		val c = rds.allResourceDescriptions.map [ rd |
 			rd.getExportedObjects(o.eClass, qnp.getFullyQualifiedName(o), false).toSet
 		].reduce[p1, p2|p1.addAll(p2); return p1]
-		val s = c.size
-		if (s > 1) {
-			warning(
-				'''There is more than one element with name '«qnp.getFullyQualifiedName(o)»'.''',
-				RoboChartPackage.Literals.NAMED_ELEMENT__NAME,
-				'UniqueQualifiedName'
-			)
+		if (c !== null) {
+			val s = c.size
+			if (s > 1) {
+				warning(
+					'''There is more than one element with name '«qnp.getFullyQualifiedName(o)»'.''',
+					RoboChartPackage.Literals.NAMED_ELEMENT__NAME,
+					'UniqueQualifiedName'
+				)
+			}
 		}
 	}
 
