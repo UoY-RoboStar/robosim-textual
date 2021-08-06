@@ -1,11 +1,10 @@
 package circus.robocalc.robosim.textual
 
 import circus.robocalc.robochart.textual.generator.AbstractRoboChartGenerator
+import circus.robocalc.robosim.textual.generator.IAbstractRoboSimGenerator
 import org.eclipse.core.runtime.Platform
 import org.eclipse.xtext.generator.OutputConfiguration
 import org.eclipse.xtext.generator.OutputConfigurationProvider
-import circus.robocalc.robosim.textual.generator.AbstractRoboSimGenerator
-import circus.robocalc.robosim.textual.generator.IAbstractRoboSimGenerator
 
 /**
  * This class searches for all robochart generators provided by plugins,

@@ -145,7 +145,7 @@ Transition:
 ;
 
 ExecTrigger returns Communication:
-	{ExecTrigger} 'exec'
+	{ExecTrigger} event=[Event|'exec']
 ;
 
 
