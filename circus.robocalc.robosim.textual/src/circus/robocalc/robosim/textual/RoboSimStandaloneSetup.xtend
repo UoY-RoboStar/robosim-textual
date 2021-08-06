@@ -3,12 +3,6 @@
  */
 package circus.robocalc.robosim.textual
 
-import com.google.inject.Injector
-import org.eclipse.emf.ecore.EPackage
-import circus.robocalc.robosim.RoboSimPackage
-import circus.robocalc.robosim.RoboSimFactory
-import org.eclipse.emf.ecore.EFactory
-import circus.robocalc.robochart.textual.RoboChartStandaloneSetup
 import circus.robocalc.robosim.impl.RoboSimPackageImpl
 
 /**
@@ -20,7 +14,6 @@ class RoboSimStandaloneSetup extends RoboSimStandaloneSetupGenerated {
 		new RoboSimStandaloneSetup().createInjectorAndDoEMFRegistration()
 	}
 	
-	@Override
 	override createInjectorAndDoEMFRegistration() {
 		
 		val robochartinj = super.createInjectorAndDoEMFRegistration();

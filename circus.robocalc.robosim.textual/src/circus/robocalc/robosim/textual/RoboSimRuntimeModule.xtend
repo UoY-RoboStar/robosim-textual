@@ -4,8 +4,6 @@
 package circus.robocalc.robosim.textual
 
 import circus.robocalc.robochart.textual.RoboChartQualifiedNameConverter
-import circus.robocalc.robochart.textual.scoping.RoboChartImportURIGlobalScopeProvider
-import circus.robocalc.robochart.textual.scoping.RoboChartImportedNamespaceAwareLocalScopeProvider
 import circus.robocalc.robosim.textual.scoping.RoboSimScopeProvider
 import com.google.inject.Binder
 import com.google.inject.name.Names
@@ -14,13 +12,15 @@ import org.eclipse.xtext.naming.IQualifiedNameConverter
 import org.eclipse.xtext.scoping.IGlobalScopeProvider
 import org.eclipse.xtext.scoping.IScopeProvider
 import org.eclipse.xtext.scoping.impl.AbstractDeclarativeScopeProvider
+import circus.robocalc.robosim.textual.scoping.RoboSimImportURIGlobalScopeProvider
+import circus.robocalc.robosim.textual.scoping.RoboSimImportedNamespaceAwareLocalScopeProvider
 
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
  */
 class RoboSimRuntimeModule extends AbstractRoboSimRuntimeModule {
 	override Class<? extends IGlobalScopeProvider> bindIGlobalScopeProvider() {
-    	return RoboChartImportURIGlobalScopeProvider
+    	return RoboSimImportURIGlobalScopeProvider
 	}
 	def Class<? extends IQualifiedNameConverter> bindIQualifiedNameConverter() {
 		return RoboChartQualifiedNameConverter
@@ -35,6 +35,6 @@ class RoboSimRuntimeModule extends AbstractRoboSimRuntimeModule {
 	override void configureIScopeProviderDelegate(Binder binder) {
 		binder.bind(IScopeProvider)
 		.annotatedWith(Names.named(AbstractDeclarativeScopeProvider.NAMED_DELEGATE))
-		.to(RoboChartImportedNamespaceAwareLocalScopeProvider)
+		.to(RoboSimImportedNamespaceAwareLocalScopeProvider)
 	}
 }

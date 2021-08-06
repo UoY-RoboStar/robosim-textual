@@ -6,7 +6,7 @@ Bundle-Vendor: RoboCalc Project
 Bundle-Version: 3.0.0.qualifier
 Bundle-SymbolicName: circus.robocalc.robosim.textual; singleton:=true
 Bundle-ActivationPolicy: lazy
-Require-Bundle: org.eclipse.xtext,
+Require-Bundle: org.eclipse.xtext;bundle-version="2.23.0",
  org.eclipse.xtext.xbase,
  org.eclipse.equinox.common;bundle-version="3.5.0",
  circus.robocalc.robochart.textual;bundle-version="2.0.0",
@@ -20,12 +20,13 @@ Require-Bundle: org.eclipse.xtext,
  org.eclipse.core.runtime;bundle-version="3.15.200"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: circus.robocalc.robosim.textual,
- circus.robocalc.robosim.textual.services,
+ circus.robocalc.robosim.textual.formatting2,
+ circus.robocalc.robosim.textual.generator,
+ circus.robocalc.robosim.textual.parser.antlr,
+ circus.robocalc.robosim.textual.parser.antlr.internal,
  circus.robocalc.robosim.textual.scoping,
  circus.robocalc.robosim.textual.serializer,
+ circus.robocalc.robosim.textual.services,
  circus.robocalc.robosim.textual.validation,
- circus.robocalc.robosim.textual.generator,
- circus.robocalc.robosim.textual.parser.antlr.internal,
- circus.robocalc.robosim.textual.parser.antlr,
- circus.robocalc.robosim.textual.formatting2
+ robosim
 Import-Package: org.apache.log4j
