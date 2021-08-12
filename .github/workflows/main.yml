@@ -18,7 +18,7 @@ on:
 
 # An attempt at clearly specifying deployment for all steps
 env:
-  deploy: ${{ github.ref == 'refs/heads/ccc' && (github.event_name == 'push' || github.event_name == 'rebuild') }}
+  deploy: ${{ github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'rebuild') }}
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -29,10 +29,6 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    
-      - if: env.deploy
-        name: Print env
-        run: echo ${{env.deploy}}
 
       - name: Setup java
         uses: actions/setup-java@v1
