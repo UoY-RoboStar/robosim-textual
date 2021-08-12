@@ -30,10 +30,9 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     
-      - name: Print env
+      - if: env.deploy == 'true'
+        name: Print env
         run: echo ${{env.deploy}}
-        env:
-          deploy: ${{ env.deploy }}
 
       - name: Setup java
         uses: actions/setup-java@v1
