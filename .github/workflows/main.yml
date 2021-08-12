@@ -83,6 +83,15 @@ jobs:
           repository: UoY-RoboStar/robosim-assertions
           event-type: rebuild
           client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
+          
+      - if: env.deploy == 'true'
+        name: Repository Dispatch
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.ROBOSTAR_GITHUB_ACTIONS_TOKEN }}
+          repository: UoY-RoboStar/robosim-graphical
+          event-type: rebuild
+          client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'          
 
 #         name: Uploading update site
 #         run: ./upload.sh
