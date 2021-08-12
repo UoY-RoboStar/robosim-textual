@@ -16,6 +16,7 @@ on:
   repository_dispatch:
     types: [rebuild]
 
+# An attempt at clearly specifying deployment for all steps
 env:
   deploy: ${{ github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'rebuild') }}
 
