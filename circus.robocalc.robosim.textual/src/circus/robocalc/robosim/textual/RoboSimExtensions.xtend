@@ -23,6 +23,9 @@ import org.eclipse.emf.common.util.BasicEList
 import org.eclipse.emf.common.util.EList
 import org.eclipse.emf.ecore.EObject
 import circus.robocalc.robosim.SimContext
+import java.util.Set
+import java.util.HashSet
+import circus.robocalc.robochart.VariableModifier
 
 class RoboSimExtensions {
 	/*
@@ -204,11 +207,11 @@ class RoboSimExtensions {
 	/*
 	 * return 
 	 */
-	def dispatch EList<String> inputEvents(SimContext context) {
+	def dispatch Set<String> inputEvents(SimContext context) {
 		//val EList<String> resInpEvs = new BasicEList<String>();
 		
 		//val names = new ArrayList<String>();
-		val names = new BasicEList<String>();
+		val names = new HashSet<String>();
 		val evs = new BasicEList<Event>();
 		evs.addAll(context.inputContext.events)
 		context.inputContext.interfaces.forEach[evs.addAll(it.events)]
@@ -222,11 +225,11 @@ class RoboSimExtensions {
 		return names;
 	}
 	
-	def dispatch EList<String> inputEventsRS(SimContext context) {
+	def dispatch Set<String> inputEventsRS(SimContext context) {
 		//val EList<String> resInpEvs = new BasicEList<String>();
 		
 		//val names = new ArrayList<String>();
-		val names = new BasicEList<String>();
+		val names = new HashSet<String>();
 		val evs = new BasicEList<Event>();
 		evs.addAll(context.inputContext.events)
 		context.inputContext.interfaces.forEach[evs.addAll(it.events)]
@@ -240,11 +243,78 @@ class RoboSimExtensions {
 		return names;
 	}
 	
-	def dispatch EList<String> outputEventsRS(SimContext context) {
+	def Set<String> inputVarsRS(SimContext context) {
+		
+		var names = new HashSet<String>();
+		
+		for (vL : context.inputContext.variableList) {
+			for (v : vL.vars)
+			{
+				if (v.modifier == VariableModifier.VAR)
+					names.add(v.name)
+			}
+		}
+		
+		for (i : context.inputContext.RInterfaces) {
+			for (vL : i.variableList) {
+				for (v : vL.vars)
+				{
+					if (v.modifier == VariableModifier.VAR)
+						names.add(v.name)
+				}
+			}
+		}
+		return names
+	}
+	
+	def Set<String> outputVarsRS(SimContext context) {
+		
+		var names = new HashSet<String>();
+		
+		for (vL : context.outputContext.variableList) {
+			for (v : vL.vars)
+			{
+				if (v.modifier == VariableModifier.VAR)
+					names.add(v.name)
+			}
+		}
+		
+		for (i : context.outputContext.RInterfaces) {
+			for (vL : i.variableList) {
+				for (v : vL.vars)
+				{
+					if (v.modifier == VariableModifier.VAR)
+						names.add(v.name)
+				}
+			}
+		}
+		return names
+	}
+	
+	def Set<String> outputOperationsRS(SimContext context) {
+		
+		var names = new HashSet<String>();
+		
+		for (op : context.outputContext.operations) {
+			names.add(op.name)
+		}
+		
+		for (i : context.outputContext.RInterfaces) {
+			for (op : i.operations) {
+				names.add(op.name)
+			}	
+		}
+		
+		return names
+		
+	}	
+	
+	
+	def dispatch Set<String> outputEventsRS(SimContext context) {
 		//val EList<String> resInpEvs = new BasicEList<String>();
 		
 		//val names = new ArrayList<String>();
-		val names = new BasicEList<String>();
+		val names = new HashSet<String>();
 		val evs = new BasicEList<Event>();
 		evs.addAll(context.outputContext.events)
 		context.outputContext.interfaces.forEach[evs.addAll(it.events)]
@@ -258,11 +328,11 @@ class RoboSimExtensions {
 		return names;
 	}
 	
-	def dispatch EList<String> outputEvents(SimContext context) {
+	def dispatch Set<String> outputEvents(SimContext context) {
 		//val EList<String> resInpEvs = new BasicEList<String>();
 		
 		//val names = new ArrayList<String>();
-		val names = new BasicEList<String>();
+		val names = new HashSet<String>();
 		val evs = new BasicEList<Event>();
 		evs.addAll(context.outputContext.events)
 		context.outputContext.interfaces.forEach[evs.addAll(it.events)]
@@ -276,11 +346,11 @@ class RoboSimExtensions {
 		return names;
 	}
 	
-	def dispatch EList<String> inputEvents(SimControllerDef context) {
+	def dispatch Set<String> inputEvents(SimControllerDef context) {
 		//val EList<String> resInpEvs = new BasicEList<String>();
 		
 		//val names = new ArrayList<String>();
-		val names = new BasicEList<String>();
+		val names = new HashSet<String>();
 		val evs = new BasicEList<Event>();
 		evs.addAll(context.declaredInputEvents)
 		//context.inputContext.interfaces.forEach[evs.addAll(it.events)]
@@ -295,9 +365,9 @@ class RoboSimExtensions {
 	}
 	
 	
-	def dispatch EList<String> datatypeInputsNames(SimMachineDef context) {
-		val EList<String> inpEvs = inputEvents(context);
-		val EList<String> res = new BasicEList<String>();
+	def dispatch Set<String> datatypeInputsNames(SimMachineDef context) {
+		val Set<String> inpEvs = inputEvents(context);
+		val Set<String> res = new HashSet<String>();
 		
 		for (ev : inpEvs) {
 			//System.out.println(ev)

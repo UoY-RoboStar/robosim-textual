@@ -9,6 +9,8 @@ import circus.robocalc.robochart.textual.RoboCalcTypeProvider
 import circus.robocalc.robosim.CycleExp
 import circus.robocalc.robosim.SimRefExp
 import org.eclipse.emf.ecore.EObject
+import circus.robocalc.robosim.SimVarRef
+import circus.robocalc.robochart.Assignable
 
 class RoboSimTypeProvider extends RoboCalcTypeProvider {
 
@@ -30,6 +32,15 @@ class RoboSimTypeProvider extends RoboCalcTypeProvider {
 				
 		} else
 			null
+	}
+	
+	override dispatch Type typeFor(Assignable e) {
+		if (e instanceof SimVarRef) {
+			if (e.name instanceof Variable) 
+				normalise((e.name as Variable).type)
+		} else {
+			super._typeFor(e)
+		}
 	}
 	
 	def dispatch Type typeFor(CycleExp e) {
