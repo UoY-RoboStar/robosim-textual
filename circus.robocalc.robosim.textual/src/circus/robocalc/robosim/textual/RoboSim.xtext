@@ -155,24 +155,30 @@ ExecTrigger returns Communication:
 //	Comp
 //;
 //
+
 @Override
-Neg returns Expression: 
-	{Neg} '-' exp=Neg |
+Atomic returns Expression: 
+//	{Neg} '-' exp=Neg |
 //	{SimRefExp} '$' event=[Event] '.' value=Atomic 
 //		(
 //			('?' variable=[Variable|QualifiedName] (':' predicate=Atomic)?) 
 //
 //		)
-	{SimRefExp} '$' element=[NamedElement|QualifiedName] (
-		=> '.' exp=CallExp | 
-		('?' variable=[Variable|QualifiedName] (':' predicate=CallExp)?)
-	)? 
-	|
-	{CycleExp} 'cycle'
-	|
-	Selection 
-//	| {SimRefExpRS} '$' ref=[NamedExpression]
+	SimRefExp |
+	{CycleExp} 'cycle' |
+	super::Atomic
 ;
+
+//SimRefExp returns Expression:
+//	{SimRefExp} '$' element=[NamedElement|QualifiedName] (
+//		=> (
+//			'.' exp=CallExp | 
+//			('?' variable=[Variable|QualifiedName] (':' predicate=CallExp)?)
+//		)
+//	)?
+//	|
+//	Selection 
+//	| {SimRefExpRS} '$' ref=[NamedExpression]
  
 @Override
 VariableReference returns Assignable:
@@ -182,12 +188,14 @@ VariableReference returns Assignable:
 
 
 SimRefExp returns Expression:
-	{SimRefExp} '$' element=[NamedElement|QualifiedName] (
-		=> '.' exp=CallExp | 
-		('?' variable=[Variable|QualifiedName] (':' predicate=CallExp)?)
+	{SimRefExp} '$' element=[NamedElement|QualifiedName] 
+	(
+		=> (
+			'.' exp=CallExp | 
+			('?' variable=[Variable|QualifiedName] (':' predicate=CallExp)?)
+		)
 	)?
 ;
-
 
 //@Override
 //Atomic returns Expression:
@@ -203,7 +211,7 @@ SimRefExp returns Expression:
 ////CommandEventCall:
 
 OutputCommunication:
-	('send'?) '$' event=[Event|QualifiedName]
+	'$' event=[Event|QualifiedName]
 		(
 			('!'|'.') value=CallExp
 		)?
@@ -218,7 +226,12 @@ OutputCommunication:
 BasicStatement returns Statement:
 	{ExecStatement} 'exec' |
 	OutputCommunication |
-	super::BasicStatement
+	IfStmt |
+	Skip |
+	Call |
+	Assignment |
+    {ParStmt} '(' stmt=Statement ')' |
+    ClockReset
 ;
 
 @Override

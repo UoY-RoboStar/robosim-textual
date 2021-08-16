@@ -29,6 +29,7 @@ import circus.robocalc.robochart.Event
 import java.util.ArrayList
 import circus.robocalc.robosim.ExecTrigger
 import circus.robocalc.robosim.ExecStatement
+import circus.robocalc.robosim.SimVarRef
 
 /**
  * This class contains custom scoping description.
@@ -246,14 +247,17 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 	}
 	
 	def dispatch IScope resolveScope(SimRefExp context, EReference reference) {
-		val result = super.getScope(context,reference)
+		val result = IScope::NULLSCOPE//super.getScope(context,reference)
 		if (reference == SIM_REF_EXP__EXP) {
 			if (context.element instanceof Variable) {
 				val s = getSelectionScope(context.element.typeFor)
 				return s	
-			}	
+			} else if (context.element instanceof Event) {
+				var s = inputEventsDeclared(context.element, result)
+				return s
+			}
 		} else if (reference == SIM_REF_EXP__ELEMENT) {
-			var s = variablesDeclared(context, result)
+			var s = inputVariablesDeclared(context, result)
 			s = eventsDeclared(context,s)
 			return s
 		} else if (reference == SIM_REF_EXP__VARIABLE) {
@@ -285,6 +289,58 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 //		return s
 //	}
 
+	def dispatch IScope outputVariablesDeclared(EObject cont, IScope p) {
+		if (cont === null || cont.eContainer === null)
+			return p
+		else
+			return cont.eContainer.outputVariablesDeclared(p)
+	}
+
+	def dispatch IScope outputVariablesDeclared(SimMachineDef n, IScope p) {
+		getoutputVariablesDeclared(n as SimContext, p)
+	}
+	
+	def dispatch IScope outputVariablesDeclared(SimOperationDef n, IScope p) {
+		getoutputVariablesDeclared(n as SimContext, p)
+	}
+
+	def dispatch IScope getoutputVariablesDeclared(SimContext n, IScope p) {
+		if (n.outputContext === null) {
+			return p
+		}		
+		p.scopesFor(
+			n.outputContext.variableList.map[it.vars].flatten,
+			n.outputContext.interfaces.map[it.variableList.map[it.vars].flatten].flatten,
+			n.outputContext.RInterfaces.map[it.variableList.map[it.vars].flatten].flatten
+		)
+	}
+
+	def dispatch IScope inputVariablesDeclared(EObject cont, IScope p) {
+		if (cont === null || cont.eContainer === null)
+			return p
+		else
+			return cont.eContainer.inputVariablesDeclared(p)
+	}
+	
+	def dispatch IScope inputVariablesDeclared(SimMachineDef n, IScope p) {
+		getinputVariablesDeclared(n as SimContext, p)
+	}
+	
+	def dispatch IScope inputVariablesDeclared(SimOperationDef n, IScope p) {
+		getinputVariablesDeclared(n as SimContext, p)
+	}
+
+	def dispatch IScope getinputVariablesDeclared(SimContext n, IScope p) {
+		if (n.inputContext === null) {
+			return p
+		}		
+		p.scopesFor(
+			n.inputContext.variableList.map[it.vars].flatten,
+			n.inputContext.interfaces.map[it.variableList.map[it.vars].flatten].flatten,
+			n.inputContext.RInterfaces.map[it.variableList.map[it.vars].flatten].flatten
+		)
+	}
+
 	def dispatch IScope variablesDeclared(SimMachineDef cont, IScope p) {
 		getvariablesDeclared(cont as SimContext,p)
 	}
@@ -295,21 +351,20 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 	}
 
 	def dispatch IScope getvariablesDeclared(SimContext cont, IScope p) {
-		var s = cont.eContainer.variablesDeclared(p)
-		val outputContextVariables = if (cont.outputContext === null) {
-				Collections.emptyList
-			} else {
-				cont.outputContext.RInterfaces.map[it.variableList].flatten.map[it.vars].flatten
-			}
+//		var s = cont.eContainer.variablesDeclared(p)
+//		val outputContextVariables = if (cont.outputContext === null) {
+//				Collections.emptyList
+//			} else {
+//				cont.outputContext.RInterfaces.map[it.variableList].flatten.map[it.vars].flatten
+//			}
 //		var constCol = new HashSet<Variable>();
 //		val c = cont.const
 //		constCol.add(c)
-		return s.scopesFor(
+		return p.scopesFor(
 			//constCol,
 			cont.variableList.map[it.vars].flatten,
 			cont.RInterfaces.map[it.variableList].flatten.map[it.vars].flatten,
-			cont.interfaces.map[it.variableList].flatten.map[it.vars].flatten,
-			outputContextVariables
+			cont.interfaces.map[it.variableList].flatten.map[it.vars].flatten
 		)
 	}
 	
@@ -337,6 +392,12 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 	
 	def dispatch IScope resolveScope(Communication context, EReference reference) {
 		return getExecScope(context)
+	}
+	
+	def dispatch IScope resolveScope(SimVarRef context, EReference reference) {
+		val result = delegateGetScope(context, reference)
+		val r = context.outputVariablesDeclared(result)
+		r
 	}
 	
 	def dispatch IScope resolveScope(EObject context, EReference reference) {

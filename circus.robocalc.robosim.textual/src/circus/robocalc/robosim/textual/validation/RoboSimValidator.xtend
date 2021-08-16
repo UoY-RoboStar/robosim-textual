@@ -69,6 +69,8 @@ import org.eclipse.xtext.formatting.INodeModelFormatter.IFormattedRegion
 import circus.robocalc.robosim.SimRefExp
 import circus.robocalc.robochart.CommunicationStmt
 import circus.robocalc.robosim.OutputCommunication
+import circus.robocalc.robochart.Call
+import circus.robocalc.robosim.SimOperationDef
 
 /**
  * This class contains custom validation rules. 
@@ -779,6 +781,172 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 		} else if (o instanceof StateMachineRef) {
 			return getPOps(o.ref)
 		}
+	}
+	
+	// TODO: These methods should reuse the base class.. but NOT with the RoboChartTypeProvider.
+	// 		 Instead there should be a way to reuse the base class injecting the RoboSimTypeProvider?
+	//		 Otherwise it seems like a lot of duplication of code, such as the below.
+	override callWellTyped(Call c) {
+		val op = c.operation
+		val opSig = if(op instanceof OperationRef) op.ref as OperationSig else op as OperationSig
+		if (opSig.parameters.size !== c.args.size) {
+			error(
+				'Incorrect number of parameters in operation call',
+				RoboChartPackage.Literals.CALL__ARGS,
+				'OperationWrongNumberofParameters'
+			)
+		} else {
+			for (var i = 0; i < opSig.parameters.size; i++) {
+				val argtype = c.args.get(i).typeFor
+				if (!typeCompatible(argtype, opSig.parameters.get(i).type)) {
+					error(
+						'Parameter ' + i + ' of the operation ' + opSig.name + ' expects type ' +
+							opSig.parameters.get(i).type.printType + ', but argument has type ' + argtype.printType,
+						RoboChartPackage.Literals.CALL__ARGS,
+						'CallArgumentTypeError'
+					)
+				}
+			}
+		}
+	}
+	
+	// Not using ROps as it includes platform operations as well..
+	def getRequiredSoftwareOperations(SimMachineDef m) {
+		var HashSet<OperationSig> ops = new HashSet<OperationSig>
+		for (i : m.RInterfaces) {
+			for (o : i.operations) {
+				ops.add(o)
+			}
+		}
+		return ops
+	}
+	
+	// Check that Inputs/Outputs of state machines and operations are satisfied
+	// transitively in the context of a controller.
+	@Check
+	def checkOperationsSatisfyIO(SimControllerDef c) {
+		
+		var opDefs = new HashSet<SimOperationDef>()
+		for (o: c.LOperations) {
+			val def = if (o instanceof OperationRef) o.ref else o
+			if (def instanceof SimOperationDef) {
+				opDefs.add(def)
+			}
+		}
+		
+		// For each operation in the controller check that their I/O is satisfied
+		for (o : opDefs) {
+			val inputEvents = o.inputEventsRS
+			val outputEvents = o.outputEventsRS
+			val inputVars = o.inputVarsRS
+			val outputVars = o.outputVarsRS
+			val outputOperations = o.outputOperationsRS
+	 			
+			for (rop : o.ROps) {
+				val requiredOpDef = opDefs.findFirst[x|OpEqual(rop,x)]
+				if (requiredOpDef !== null) {
+					for (e : requiredOpDef.inputEventsRS) {
+						if (!inputEvents.contains(e))
+							error("Input event '" + e + "' used by operation '" + requiredOpDef.name + "' is not used by operation '" + o.name + "' as an input.",
+								RoboChartPackage.Literals.CONTROLLER_DEF__MACHINES,
+								'InputContextEventNotProvided'
+							)
+					}
+					for (v : requiredOpDef.inputVarsRS) {
+						if (!inputVars.contains(v))
+							error("Input variable '" + v + "' required by operation '" + requiredOpDef.name + "' is not required by operation '" + o.name + "' as an input.",
+								RoboChartPackage.Literals.CONTROLLER_DEF__MACHINES,
+								'InputContextVariableNotProvided'
+							)							
+					}
+					for (e : requiredOpDef.outputEventsRS) {
+						if (!outputEvents.contains(e))
+							error("Output event '" + e + "' used by operation '" + requiredOpDef.name + "' is not provided by operation '" + o.name + "' as an output.",
+								RoboChartPackage.Literals.CONTROLLER_DEF__MACHINES,
+								'OutputContextEventNotProvided'
+							)
+					}
+					for (v : requiredOpDef.outputVarsRS) {
+						if (!outputVars.contains(v))
+							error("Output variable '" + v + "' required by operation '" + requiredOpDef.name + "' is not required by operation '" + o.name + "' as an output.",
+								RoboChartPackage.Literals.CONTROLLER_DEF__MACHINES,
+								'OutputContextVariableNotProvided'
+							)							
+					}
+					for (v : requiredOpDef.outputOperationsRS) {
+						if (!outputOperations.contains(v))
+							error("Platform operation '" + v + "' required by operation '" + requiredOpDef.name + "' is not required by operation '" + o.name + "' as an output.",
+								RoboChartPackage.Literals.CONTROLLER_DEF__MACHINES,
+								'OutputContextVariableNotProvided'
+							)							
+					}				
+				}
+			}
+		}
+		
+		for (m : c.machines) {
+			
+			var SimMachineDef o = null
+			
+			if (m instanceof StateMachineRef) {
+				if (m.ref instanceof SimMachineDef) {
+					o = m.ref as SimMachineDef
+				}
+			} else if (m instanceof SimMachineDef) {
+				o = m
+			}
+			
+			if (o !== null) {
+			
+				val inputEvents = o.inputEventsRS
+				val outputEvents = o.outputEventsRS
+				val inputVars = o.inputVarsRS
+				val outputVars = o.outputVarsRS
+				val outputOperations = o.outputOperationsRS
+				
+				for (rop : o.getRequiredSoftwareOperations) {
+					val requiredOpDef = opDefs.findFirst[x|OpEqual(rop,x)]
+					if (requiredOpDef !== null) {
+						for (e : requiredOpDef.inputEventsRS) {
+							if (!inputEvents.contains(e))
+								error("Input event '" + e + "' used by operation '" + requiredOpDef.name + "' is not used by state machine '" + o.name + "' as an input.",
+									RoboChartPackage.Literals.CONTROLLER_DEF__MACHINES,
+									'InputContextEventNotProvided'
+								)
+						}
+						for (v : requiredOpDef.inputVarsRS) {
+							if (!inputVars.contains(v))
+								error("Input variable '" + v + "' required by operation '" + requiredOpDef.name + "' is not required by state machine '" + o.name + "' as an input.",
+									RoboChartPackage.Literals.CONTROLLER_DEF__MACHINES,
+									'InputContextVariableNotProvided'
+								)							
+						}
+						for (e : requiredOpDef.outputEventsRS) {
+							if (!outputEvents.contains(e))
+								error("Output event '" + e + "' used by operation '" + requiredOpDef.name + "' is not provided by state machine '" + o.name + "' as an output.",
+									RoboChartPackage.Literals.CONTROLLER_DEF__MACHINES,
+									'OutputContextEventNotProvided'
+								)
+						}
+						for (v : requiredOpDef.outputVarsRS) {
+							if (!outputVars.contains(v))
+								error("Output variable '" + v + "' required by operation '" + requiredOpDef.name + "' is not required by state machine '" + o.name + "' as an output.",
+									RoboChartPackage.Literals.CONTROLLER_DEF__MACHINES,
+									'OutputContextVariableNotProvided'
+								)							
+						}
+						for (v : requiredOpDef.outputOperationsRS) {
+							if (!outputOperations.contains(v))
+								error("Platform operation '" + v + "' required by operation '" + requiredOpDef.name + "' is not required by state machine '" + o.name + "' as an output.",
+									RoboChartPackage.Literals.CONTROLLER_DEF__MACHINES,
+									'OutputContextVariableNotProvided'
+								)							
+						}				
+					}
+				}
+			}
+		}
+		
 	}
 	
 }
