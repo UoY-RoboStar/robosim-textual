@@ -139,6 +139,7 @@ Transition:
 			trigger=ExecTrigger |
 			'probability' probability=Expression
 		)?
+		(reset+=ClockReset)*
 		('condition' condition=(Expression|Else))?
 		('action' action=Statement)?
 	'}'
