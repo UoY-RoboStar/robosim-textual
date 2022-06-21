@@ -18,7 +18,7 @@ on:
 
 # An attempt at clearly specifying deployment for all steps
 env:
-  deploy: ${{ github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'rebuild') }}
+  deploy: ${{ github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'rebuild' || github.event_name == 'workflow_dispatch') }}
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
