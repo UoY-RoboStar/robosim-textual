@@ -30,6 +30,8 @@ import java.util.ArrayList
 import circus.robocalc.robosim.ExecTrigger
 import circus.robocalc.robosim.ExecStatement
 import circus.robocalc.robosim.SimVarRef
+import circus.robocalc.robochart.OperationDef
+import circus.robocalc.robosim.SimCall
 
 /**
  * This class contains custom scoping description.
@@ -47,11 +49,26 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 				case SIM_REF_EXP__EXP: System.out.println("exp")
 				case SIM_REF_EXP__VARIABLE: System.out.println("variable")
 			}
+		}else if( context instanceof SimCall){
+			if (reference === CALL__OPERATION) {
+				//changed the parent scope to avoid accepting OperationDefs being in the scope for Calls
+				val s = delegateGetScope(context, reference) //IScope::NULLSCOPE
+				return context.getOutputOperationsDeclared(s)
+			}
 		} 
 		
 		val scope = context.resolveScope(reference)
  		//val scope = super.getScope(context,reference)
 		return scope
+	}
+	
+	
+	def dispatch IScope getOutputOperationsDeclared(EObject cont, IScope parent) {
+		val container = cont.eContainer
+		if (container !== null)
+			container.getOutputOperationsDeclared(parent)
+		else
+			parent
 	}
 
 	def dispatch IScope resolveScope(RefExp context, EReference reference) {
@@ -99,16 +116,8 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 		return finalScope
       }
 	
-
-	def dispatch IScope operationsDeclared(SimMachineDef n, IScope p) {
-		getoperationsDeclared(n as SimContext, p)
-	}
 	
-	def dispatch IScope operationsDeclared(SimOperationDef n, IScope p) {
-		getoperationsDeclared(n as SimContext, p)
-	}
-
-	def dispatch IScope getoperationsDeclared(SimContext n, IScope p) {
+	def dispatch IScope getOutputOperationsDeclared(SimContext n, IScope p) {
 		var finalScope = n.outputOperationsDeclared(p)
 //		@author: Pedro
 //		NOTE: Commented out to include, in addition to this scope, that
