@@ -46,12 +46,12 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 	@Inject extension RoboSimTypeProvider
 	override getScope(EObject context, EReference reference) {
 		if (context instanceof SimRefExp) {
-//			switch(reference) {
-//				case SIM_REF_EXP__ELEMENT : System.out.println("element")
-//				case SIM_REF_EXP__PREDICATE: System.out.println("predicate")
-//				case SIM_REF_EXP__EXP: System.out.println("exp")
-//				case SIM_REF_EXP__VARIABLE: System.out.println("variable")
-//			}
+			switch(reference) {
+				case SIM_REF_EXP__ELEMENT : System.out.println("element")
+				case SIM_REF_EXP__PREDICATE: System.out.println("predicate")
+				case SIM_REF_EXP__EXP: System.out.println("exp")
+				case SIM_REF_EXP__VARIABLE: System.out.println("variable")
+			}
 		}else if( context instanceof SimCall){
 			if (reference === CALL__OPERATION) {
 				//changed the parent scope to avoid accepting OperationDefs being in the scope for Calls
