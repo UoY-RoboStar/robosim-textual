@@ -32,6 +32,9 @@ import circus.robocalc.robosim.ExecStatement
 import circus.robocalc.robosim.SimVarRef
 import circus.robocalc.robochart.OperationDef
 import circus.robocalc.robosim.SimCall
+import circus.robocalc.robochart.Interface
+import circus.robocalc.robochart.OperationSig
+import java.util.List
 
 /**
  * This class contains custom scoping description.
@@ -52,25 +55,18 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 		}else if( context instanceof SimCall){
 			if (reference === CALL__OPERATION) {
 				//changed the parent scope to avoid accepting OperationDefs being in the scope for Calls
-				val s = delegateGetScope(context, reference) //IScope::NULLSCOPE
-				return context.getOutputOperationsDeclared(s)
+				val s = delegateGetScope(context, reference) 
+				return context.outputOperationsDeclared(s)
 			}
 		} 
 		
 		val scope = context.resolveScope(reference)
  		//val scope = super.getScope(context,reference)
 		return scope
+		
+		
 	}
 	
-	
-	def dispatch IScope getOutputOperationsDeclared(EObject cont, IScope parent) {
-		val container = cont.eContainer
-		if (container !== null)
-			container.getOutputOperationsDeclared(parent)
-		else
-			parent
-	}
-
 	def dispatch IScope resolveScope(RefExp context, EReference reference) {
 		if (context.eContainer instanceof SimRefExp && reference == REF_EXP__REF) {
 			val parent = context.eContainer as SimRefExp
@@ -117,20 +113,7 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
       }
 	
 	
-	def dispatch IScope getOutputOperationsDeclared(SimContext n, IScope p) {
-		var finalScope = n.outputOperationsDeclared(p)
-//		@author: Pedro
-//		NOTE: Commented out to include, in addition to this scope, that
-//			  already calculated by the RoboChartScopeProvider for
-// 			  operations. I believe a similar approach needs to be
-// 			  adopted for all other RoboSim elements.
-		finalScope.scopesFor(
-			n.interfaces.map[it.operations].flatten,
-			n.RInterfaces.map[it.operations].flatten
-		)
-		//return super.operationsDeclared(n as StateMachineDef, finalScope)
-	    return finalScope
-	}
+	
 
 	def dispatch IScope inputEventsDeclared(EObject n, IScope p) {
 		if (n.eContainer !== null) {
@@ -184,32 +167,7 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 		)
 	}
 
-	def dispatch IScope outputOperationsDeclared(EObject n, IScope p) {
-		if (n.eContainer !== null) {
-			return n.eContainer.outputOperationsDeclared(p)
-		}
-		return p
-	}
 
-	def dispatch IScope outputOperationsDeclared(SimMachineDef n, IScope p) {
-		getoutputOperationsDeclared(n as SimContext, p)
-	}
-	
-	def dispatch IScope outputOperationsDeclared(SimOperationDef n, IScope p) {
-		getoutputOperationsDeclared(n as SimContext, p)
-	}
-
-	def dispatch IScope getoutputOperationsDeclared(SimContext n, IScope p) {
-		if (n.outputContext === null) {
-			return p
-		}		
-		p.scopesFor(
-			n.outputContext.operations,
-			n.outputContext.interfaces.map[it.operations].flatten,
-			n.outputContext.RInterfaces.map[it.operations].flatten
-		)
-	}
-	
 //	def dispatch IScope resolveScope(InputCommunication context, EReference reference) {
 //		val result = super.getScope(context, reference)
 //		if (reference == INPUT_COMMUNICATION__EVENT) {
@@ -238,6 +196,8 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 		}
 		return result
 	}
+	
+
 
 	def dispatch IScope declaredNodes(SimMachineDef context, IScope scope) {
 		return Scopes::scopeFor(context.nodes, scope)
@@ -280,6 +240,10 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 		Scopes::scopeFor(cont.clocks)
 	}
 	
+//	def dispatch IScope operationsDeclared(SimMachineDef cont) {
+//		Scopes::scopeFor(cont.outputOperationsDeclared())
+//	}
+	
 //	def dispatch IScope variablesDeclared(SimModule cont, IScope p) {
 //		var s = super.variablesDeclared(cont,p);
 //		var constCol = new HashSet<Variable>();
@@ -298,20 +262,7 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 //		return s
 //	}
 
-	def dispatch IScope outputVariablesDeclared(EObject cont, IScope p) {
-		if (cont === null || cont.eContainer === null)
-			return p
-		else
-			return cont.eContainer.outputVariablesDeclared(p)
-	}
-
-	def dispatch IScope outputVariablesDeclared(SimMachineDef n, IScope p) {
-		getoutputVariablesDeclared(n as SimContext, p)
-	}
 	
-	def dispatch IScope outputVariablesDeclared(SimOperationDef n, IScope p) {
-		getoutputVariablesDeclared(n as SimContext, p)
-	}
 
 	def dispatch IScope getoutputVariablesDeclared(SimContext n, IScope p) {
 		if (n.outputContext === null) {
@@ -412,4 +363,78 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 	def dispatch IScope resolveScope(EObject context, EReference reference) {
 		return super.getScope(context, reference)
 	}
+	
+	
+	
+//	def dispatch IScope outputOperationsDeclared(EObject cont, IScope p) {
+//		if (cont === null || cont.eContainer === null)
+//			return p
+//		else
+//			return cont.eContainer.outputOperationsDeclared(p)
+//	}
+	
+	def dispatch IScope outputVariablesDeclared(EObject cont, IScope p) {
+		if (cont === null || cont.eContainer === null)
+			return p
+		else
+			return cont.eContainer.outputVariablesDeclared(p)
+	}
+
+	def dispatch IScope outputVariablesDeclared(SimMachineDef n, IScope p) {
+		getoutputVariablesDeclared(n as SimContext, p)
+	}
+	
+	def dispatch IScope outputVariablesDeclared(SimOperationDef n, IScope p) {
+		getoutputVariablesDeclared(n as SimContext, p)
+	}
+	
+	//outputOperations
+	def dispatch IScope resolveScope(SimCall context, EReference reference) {
+		val s = delegateGetScope(context, reference)
+		return context.outputOperationsDeclared(s)
+	}
+	
+	def dispatch IScope outputOperationsDeclared(SimMachineDef n, IScope p) {
+		getOutputOperationsDeclared(n as SimContext, p)
+	}
+	
+	def dispatch IScope outputOperationsDeclared(SimOperationDef n, IScope p) {
+		getOutputOperationsDeclared(n as SimContext, p)
+	}
+		
+	def dispatch IScope outputOperationsDeclared(EObject cont, IScope parent) {
+		val container = cont.eContainer
+		if (container !== null)
+			container.outputOperationsDeclared(parent)
+		else
+			parent
+	}
+	
+	
+	def dispatch IScope getOutputOperationsDeclared(SimContext n, IScope p) {
+		var finalScope = n.getoutputOperationsDeclared(p)
+//		@author: Pedro
+//		NOTE: Commented out to include, in addition to this scope, that
+//			  already calculated by the RoboChartScopeProvider for
+// 			  operations. I believe a similar approach needs to be
+// 			  adopted for all other RoboSim elements.
+		finalScope.scopesFor(
+			n.interfaces.map[it.operations].flatten,
+			n.RInterfaces.map[it.operations].flatten
+		)
+	    return finalScope
+	}
+	
+	def IScope getoutputOperationsDeclared(SimContext n, IScope p) {
+		if (n.outputContext === null) {
+			return p
+		} 		
+		p.scopesFor(
+			n.outputContext.operations,
+			n.outputContext.interfaces.map[it.operations].flatten,
+			n.outputContext.RInterfaces.map[it.operations].flatten
+		)
+		
+	}
+	
 }
