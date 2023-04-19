@@ -3,7 +3,7 @@ This repository contains the plugins for the RoboSim textual editor.
 
 ### Development platform requirements ###
 
-* Eclipse 2020-03 (or above)
+* Eclipse 2021-12
 * Sirius 6.2.0 http://download.eclipse.org/sirius/updates/releases/6.2.0/2018-12
 * Xtext 2.25.0 (at least 2.23.0 or above) can be found in the standard repository in http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases/ but the option "Show only the latest versions of available software" needs to be unchecked.
 * Maven
