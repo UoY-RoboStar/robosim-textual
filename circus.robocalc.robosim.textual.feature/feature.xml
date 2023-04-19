@@ -2,7 +2,7 @@
 <feature
       id="circus.robocalc.robosim.textual.feature"
       label="RoboSim Textual Editor"
-      version="3.0.0.qualifier"
+      version="3.1.0.qualifier"
       provider-name="RoboCalc Project">
 
    <plugin
