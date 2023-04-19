@@ -3,7 +3,7 @@ Automatic-Module-Name: circus.robocalc.robosim.textual.ide
 Bundle-ManifestVersion: 2
 Bundle-Name: RoboSim Textual Editor IDE Plugin
 Bundle-Vendor: RoboCalc Project
-Bundle-Version: 3.0.0.qualifier
+Bundle-Version: 3.1.0.qualifier
 Bundle-SymbolicName: circus.robocalc.robosim.textual.ide; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: circus.robocalc.robosim.textual,
@@ -12,6 +12,6 @@ Require-Bundle: circus.robocalc.robosim.textual,
  org.antlr.runtime;bundle-version="[3.2.0,3.2.1)",
  circus.robocalc.robochart.textual;bundle-version="3.0.0",
  circus.robocalc.robosim;bundle-version="2.0.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: circus.robocalc.robosim.textual.ide.contentassist.antlr.internal,
  circus.robocalc.robosim.textual.ide.contentassist.antlr
