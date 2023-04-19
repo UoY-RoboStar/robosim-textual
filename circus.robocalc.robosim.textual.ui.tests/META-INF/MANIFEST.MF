@@ -3,7 +3,7 @@ Automatic-Module-Name: circus.robocalc.robosim.textual.ui.tests
 Bundle-ManifestVersion: 2
 Bundle-Name: RoboSim Textual Editor UI Tests
 Bundle-Vendor: RoboCalc Project
-Bundle-Version: 3.0.0.qualifier
+Bundle-Version: 3.1.0.qualifier
 Bundle-SymbolicName: circus.robocalc.robosim.textual.ui.tests; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: circus.robocalc.robosim.textual.ui,
@@ -16,5 +16,5 @@ Require-Bundle: circus.robocalc.robosim.textual.ui,
  org.eclipse.core.runtime,
  org.eclipse.ui.workbench;resolution:=optional,
  org.eclipse.xtext.ui.testing
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: circus.robocalc.robosim.textual.ui.tests;x-internal=true
