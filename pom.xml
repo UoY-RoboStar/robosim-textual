@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>circus.robocalc.robosim.textual</groupId>
-	<version>3.0.0-SNAPSHOT</version>
+	<version>3.1.0-SNAPSHOT</version>
 	<artifactId>circus.robocalc.robosim.textual.parent</artifactId>
 	<packaging>pom</packaging>
 
@@ -13,7 +13,7 @@
 		<maven.compiler.source>11</maven.compiler.source>
 		<maven.compiler.target>11</maven.compiler.target>
 		<!-- Tycho settings -->
-		<tycho-version>1.7.0</tycho-version>
+		<tycho-version>2.6.0</tycho-version>
 		<!-- Define overridable properties for tycho-surefire-plugin -->
 		<platformSystemProperties></platformSystemProperties>
 		<moduleProperties></moduleProperties>
@@ -28,7 +28,7 @@
 		<module>circus.robocalc.robosim.textual.feature</module>
 		<module>circus.robocalc.robosim.textual.repository</module>
 		<module>circus.robocalc.robosim.textual.tests</module>
-		<!--<module>circus.robocalc.robosim.textual.ui.tests</module>-->
+		<!-- <module>circus.robocalc.robosim.textual.ui.tests</module> -->
 	</modules>
 	<dependencyManagement>
 		<dependencies>
@@ -303,17 +303,17 @@
 	<repositories>
 		<repository>
             <id>robochart-metamodel</id>
-            <url>https://www.cs.york.ac.uk/robostar/robotool/metamodel/update/</url>
+            <url>https://robostar.cs.york.ac.uk/robotool/metamodel/update/</url>
             <layout>p2</layout>
         </repository>
 		<repository>
             <id>robochart-textual</id>
-            <url>https://www.cs.york.ac.uk/robostar/robotool/textual/update/</url>
+            <url>https://robostar.cs.york.ac.uk/robotool/textual/update/</url>
             <layout>p2</layout>
         </repository>
 		<repository>
             <id>robosim-metamodel</id>
-            <url>https://www.cs.york.ac.uk/robostar/robotool/robosim-metamodel/update/</url>
+                     <url>https://robostar.cs.york.ac.uk/robotool/robosim-metamodel/update/</url>
             <layout>p2</layout>
         </repository>        
 		<repository>
