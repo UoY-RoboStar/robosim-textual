@@ -71,6 +71,10 @@ import circus.robocalc.robochart.CommunicationStmt
 import circus.robocalc.robosim.OutputCommunication
 import circus.robocalc.robochart.Call
 import circus.robocalc.robosim.SimOperationDef
+import circus.robocalc.robosim.ExecStatement
+import circus.robocalc.robochart.SeqStatement
+import circus.robocalc.robochart.Statement
+import circus.robocalc.robochart.IfStmt
 
 /**
  * This class contains custom validation rules. 
@@ -88,6 +92,7 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 	public final static String CYCLE_MUST_BE_BOOLEAN_EXPRESSION = "cycleMustBeBooleanExpression"
 	public final static String CONST_CYCLE_MUST_BE_NAME_CYCLE = "constCycleMustBeNameCycle"
 	public final static String CONST_CYCLE_MUST_BE_BOOLEAN = "constCycleMustBeBoolean"
+	public final static String SELF_TRANSITION_WITHOUT_EXEC = "selfTrasitionWithoutExec";
 
 	@Inject extension RoboSimTypeProvider
 
@@ -948,5 +953,64 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 		}
 		
 	}
+	
+	@Check
+	def selfTrasitionWithoutAction(Transition t) {
+		if (t.source == t.target){
+			if (t.trigger===null && t.action===null){
+				warning(
+				    'Self transition of state ' + t.source.name + ' does not have an exec. This may lead to a livelock.',
+				RoboChartPackage.Literals.TRANSITION__ACTION,
+				'selfTrasitionWithoutExec')
+			}
+			
+			
+			
+		}
+	}
+	
+	@Check
+	def selfTrasitionWithoutExec(Transition t) {
+		if (t.source == t.target && t.action!==null){
+			if(!(t.action instanceof ExecStatement)){
+				if (!(t.action instanceof SeqStatement)){
+					warning(
+				    'Self transition of state ' + t.source.name + ' does not have an exec. This may lead to a livelock.',
+				RoboChartPackage.Literals.TRANSITION__ACTION,
+				'selfTrasitionWithoutExec')
+				}
+				else{
+					val res = statementContainsExecStatement(t.action);
+					if (!res){
+						warning(
+				    'Self transition of state ' + t.source.name + ' does not have an exec. This may lead to a livelock.',
+				RoboChartPackage.Literals.TRANSITION__ACTION,
+				'selfTrasitionWithoutExec')
+				}
+				}
+			}
+			
+		}
+	}
+	
+	
+	def boolean statementContainsExecStatement(Statement s) {
+		
+		if (s instanceof ExecStatement){
+			return true;
+		}
+		
+        else if (s instanceof IfStmt){
+        	s.then.statementContainsExecStatement();
+        	s.^else.statementContainsExecStatement();
+        }
+		else if (s instanceof SeqStatement) {
+			for (s2 : s.statements){
+				s2.statementContainsExecStatement();
+			}
+	}
+	return false;
+	}
+	
 	
 }
