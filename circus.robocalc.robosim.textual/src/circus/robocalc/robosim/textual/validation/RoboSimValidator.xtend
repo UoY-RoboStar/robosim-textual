@@ -75,6 +75,10 @@ import circus.robocalc.robosim.ExecStatement
 import circus.robocalc.robochart.SeqStatement
 import circus.robocalc.robochart.Statement
 import circus.robocalc.robochart.IfStmt
+import org.eclipse.internal.xpand2.ast.IfStatement
+import circus.robocalc.robochart.Skip
+import circus.robocalc.robochart.ClockReset
+import circus.robocalc.robochart.ParStmt
 
 /**
  * This class contains custom validation rules. 
@@ -955,13 +959,13 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 	}
 	
 	@Check
-	def selfTrasitionWithoutAction(Transition t) {
+	def selfTrasitionWithoutTriggerAndAction(Transition t) {
 		if (t.source == t.target){
 			if (t.trigger===null && t.action===null){
 				warning(
 				    'Self transition of state ' + t.source.name + ' does not have an exec. This may lead to a livelock.',
-				RoboChartPackage.Literals.TRANSITION__ACTION,
-				'selfTrasitionWithoutExec')
+				RoboChartPackage.Literals.TRANSITION__TRIGGER,
+				'selfTrasitionWithoutTriggerAndAction')
 			}
 			
 			
@@ -972,8 +976,16 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 	@Check
 	def selfTrasitionWithoutExec(Transition t) {
 		if (t.source == t.target && t.action!==null){
-			if(!(t.action instanceof ExecStatement)){
-				if (!(t.action instanceof SeqStatement)){
+			if (t.action instanceof Skip || t.action instanceof ClockReset || t.action instanceof Assignment
+				|| t.action instanceof OutputCommunication || t.action instanceof Call 
+			)
+				warning(
+				    'Self transition of state ' + t.source.name + ' does not have an exec. This may lead to a livelock.',
+				RoboChartPackage.Literals.TRANSITION__ACTION,
+				'selfTrasitionWithoutExec')
+			
+		else if(!(t.action instanceof ExecStatement)){
+				if (!(t.action instanceof SeqStatement) && !(t.action instanceof IfStatement)){
 					warning(
 				    'Self transition of state ' + t.source.name + ' does not have an exec. This may lead to a livelock.',
 				RoboChartPackage.Literals.TRANSITION__ACTION,
@@ -995,22 +1007,52 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 	
 	
 	def boolean statementContainsExecStatement(Statement s) {
+	
+		var res = false;
 		
 		if (s instanceof ExecStatement){
-			return true;
-		}
-		
+				return true;
+				
+		}	
         else if (s instanceof IfStmt){
-        	s.then.statementContainsExecStatement();
-        	s.^else.statementContainsExecStatement();
+        	res = statementContainsExecStatement(s.then);
+        	if (res) return res
+        	else{
+        	res = statementContainsExecStatement(s.^else);
+        	//return res;
+        	}
         }
 		else if (s instanceof SeqStatement) {
 			for (s2 : s.statements){
-				s2.statementContainsExecStatement();
+				res = statementContainsExecStatement(s2);
+				System.out.println(" res " + res);
+				if (res) return res
+				System.out.println(" s " + s2);
+//				if (s2 instanceof ExecStatement){
+//					return true;
+//		}
 			}
 	}
-	return false;
+		else if (s instanceof ParStmt){
+			res = statementContainsExecStatement(s.stmt);
+			//return res;
+		}
+	return res;
 	}
+	
+//	def boolean statementContainsExecStatement(Statement s) {
+//		
+//		
+//		if (s instanceof SeqStatement) {
+//			for (s2 : s.statements){
+//				if (s2 instanceof ExecStatement){
+//					return true;
+//		}
+//			}
+//	}
+//	return false;
+//	}
+	
 	
 	
 }
