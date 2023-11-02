@@ -1017,42 +1017,22 @@ class RoboSimValidator extends AbstractRoboSimValidator {
         else if (s instanceof IfStmt){
         	res = statementContainsExecStatement(s.then);
         	if (res) return res
-        	else{
-        	res = statementContainsExecStatement(s.^else);
-        	//return res;
-        	}
+        	else
+        		res = statementContainsExecStatement(s.^else);
+        	
         }
 		else if (s instanceof SeqStatement) {
 			for (s2 : s.statements){
 				res = statementContainsExecStatement(s2);
-				System.out.println(" res " + res);
 				if (res) return res
-				System.out.println(" s " + s2);
-//				if (s2 instanceof ExecStatement){
-//					return true;
-//		}
 			}
 	}
 		else if (s instanceof ParStmt){
 			res = statementContainsExecStatement(s.stmt);
-			//return res;
+		
 		}
 	return res;
 	}
-	
-//	def boolean statementContainsExecStatement(Statement s) {
-//		
-//		
-//		if (s instanceof SeqStatement) {
-//			for (s2 : s.statements){
-//				if (s2 instanceof ExecStatement){
-//					return true;
-//		}
-//			}
-//	}
-//	return false;
-//	}
-	
-	
+
 	
 }
