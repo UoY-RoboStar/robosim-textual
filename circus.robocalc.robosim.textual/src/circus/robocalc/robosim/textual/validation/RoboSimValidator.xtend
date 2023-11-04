@@ -959,39 +959,29 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 	}
 	
 	@Check
-	def selfTrasitionWithoutTriggerAndAction(Transition t) {
+	def selfTrasitionWithoutExecTriggerAndExecStatement(Transition t) {
 		if (t.source == t.target){
 			if (t.trigger===null && t.action===null){
 				warning(
-				    'Self transition of state ' + t.source.name + ' does not have an exec. This may lead to a livelock.',
+				    'Self-transition of state ' + t.source.name + ' does not have an exec. This may lead to a livelock.',
 				RoboChartPackage.Literals.TRANSITION__TRIGGER,
-				'selfTrasitionWithoutTriggerAndAction')
+				'selfTrasitionWithoutExecTriggerAndExecStatement')
 			}
-			
-			
-			
+				
 		}
 	}
 	
-	@Check
+		@Check
 	def selfTrasitionWithoutExec(Transition t) {
-		if (t.source == t.target && t.action!==null){
-			if (t.action instanceof Skip || t.action instanceof ClockReset || t.action instanceof Assignment
-				|| t.action instanceof OutputCommunication || t.action instanceof Call 
-			)
+		if (t.source == t.target && t.trigger === null && t.action!==null && !(t.action instanceof ExecStatement)){
+			if ((t.action instanceof Skip) || (t.action instanceof ClockReset) || (t.action instanceof Assignment)
+				|| (t.action instanceof OutputCommunication) || (t.action instanceof Call))
 				warning(
-				    'Self transition of state ' + t.source.name + ' does not have an exec. This may lead to a livelock.',
+				    'Self-transition of state ' + t.source.name + ' does not have an exec. This may lead to a livelock.',
 				RoboChartPackage.Literals.TRANSITION__ACTION,
 				'selfTrasitionWithoutExec')
 			
-		else if(!(t.action instanceof ExecStatement)){
-				if (!(t.action instanceof SeqStatement) && !(t.action instanceof IfStatement)){
-					warning(
-				    'Self transition of state ' + t.source.name + ' does not have an exec. This may lead to a livelock.',
-				RoboChartPackage.Literals.TRANSITION__ACTION,
-				'selfTrasitionWithoutExec')
-				}
-				else{
+		else{if ((t.action instanceof SeqStatement) || (t.action instanceof IfStatement) || (t.action instanceof ParStmt)){
 					val res = statementContainsExecStatement(t.action);
 					if (!res){
 						warning(
@@ -1004,6 +994,8 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 			
 		}
 	}
+	
+
 	
 	
 	def boolean statementContainsExecStatement(Statement s) {
