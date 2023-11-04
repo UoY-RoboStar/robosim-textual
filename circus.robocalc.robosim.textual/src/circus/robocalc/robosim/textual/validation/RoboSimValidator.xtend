@@ -96,6 +96,7 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 	public final static String CYCLE_MUST_BE_BOOLEAN_EXPRESSION = "cycleMustBeBooleanExpression"
 	public final static String CONST_CYCLE_MUST_BE_NAME_CYCLE = "constCycleMustBeNameCycle"
 	public final static String CONST_CYCLE_MUST_BE_BOOLEAN = "constCycleMustBeBoolean"
+	public final static String SELF_TRANSTION_WITHOUT_AN_EXEC = "selfTransitionWithoutAnExec"
 
 	@Inject extension RoboSimTypeProvider
 
@@ -965,7 +966,7 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 		warning(
    	     'Self-transition of state ' + t.source.name + ' does not have an exec. This may lead to a livelock.',
          RoboChartPackage.Literals.TRANSITION__TRIGGER,
-         'selfTrasitionWithoutExecTriggerAndExecStatement')
+         'SELF_TRANSTION_WITHOUT_AN_EXEC')
 	  }
    }
 
@@ -977,7 +978,7 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 			warning(
   			 'Self-transition of state ' + t.source.name + ' does not have an exec. This may lead to a livelock.',
 			  RoboChartPackage.Literals.TRANSITION__ACTION,
-			'selfTrasitionWithoutExec')
+			'SELF_TRANSTION_WITHOUT_AN_EXEC')
 
 		else{
 			if ((t.action instanceof SeqStatement) || (t.action instanceof IfStmt) || (t.action instanceof ParStmt)){
@@ -986,7 +987,7 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 					warning(
   					'Self transition of state ' + t.source.name + ' does not have an exec. This may lead to a livelock.',
 					RoboChartPackage.Literals.TRANSITION__ACTION,
-					'selfTrasitionWithoutExec')
+					'SELF_TRANSTION_WITHOUT_AN_EXEC')
 				}
 			}
 		}
