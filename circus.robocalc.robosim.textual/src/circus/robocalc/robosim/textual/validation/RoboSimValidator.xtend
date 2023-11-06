@@ -962,38 +962,53 @@ class RoboSimValidator extends AbstractRoboSimValidator {
 	@Check
 	def selfTrasitionWithoutExecTriggerAndExecStatement(Transition t) {
 		if (t.source == t.target && t.trigger===null && t.action===null){
-		
-		warning(
-   	     'Self-transition of state ' + t.source.name + ' does not have an exec. This may lead to a livelock.',
-         RoboChartPackage.Literals.TRANSITION__TRIGGER,
-         'SELF_TRANSTION_WITHOUT_AN_EXEC')
+			if (t.source instanceof State)
+				warning(
+   	     		'Self-transition of state ' + t.source.name + ' does not have an exec. This may lead to a livelock.',
+         		RoboChartPackage.Literals.TRANSITION__TRIGGER,
+         		'SELF_TRANSTION_WITHOUT_AN_EXEC')
+         	else 
+         		warning(
+  			   'Self-transition of junction ' + t.source.name + ' does not have an exec. This may lead to a livelock.',
+			  	RoboChartPackage.Literals.TRANSITION__TRIGGER,
+				'SELF_TRANSTION_WITHOUT_AN_EXEC')
+           
 	  }
    }
 
 	@Check
-	def selfTrasitionWithoutExec(Transition t) {
-		if (t.source == t.target && t.trigger === null && t.action!==null && !(t.action instanceof ExecStatement)){
-		if ((t.action instanceof Skip) || (t.action instanceof ClockReset) || (t.action instanceof Assignment)
-			|| (t.action instanceof OutputCommunication) || (t.action instanceof Call))
-			warning(
-  			 'Self-transition of state ' + t.source.name + ' does not have an exec. This may lead to a livelock.',
-			  RoboChartPackage.Literals.TRANSITION__ACTION,
-			'SELF_TRANSTION_WITHOUT_AN_EXEC')
-
-		else{
+	def selfTrasitionWithoutExecStatement(Transition t) {
+		if (t.source == t.target && t.trigger===null && t.action!==null && !(t.action instanceof ExecStatement)){
 			if ((t.action instanceof SeqStatement) || (t.action instanceof IfStmt) || (t.action instanceof ParStmt)){
 			val res = statementContainsExecStatement(t.action);
 				if (!res){
+					if (t.source instanceof State)
+						warning(
+  						'Self-transition of state ' + t.source.name + ' does not have an exec. This may lead to a livelock.',
+						RoboChartPackage.Literals.TRANSITION__ACTION,
+						'SELF_TRANSTION_WITHOUT_AN_EXEC')
+					else 
+						warning(
+  			 			'Self-transition of junction ' + t.source.name + ' does not have an exec. This may lead to a livelock.',
+			 		 	RoboChartPackage.Literals.TRANSITION__ACTION,
+						'SELF_TRANSTION_WITHOUT_AN_EXEC')
+				}
+			}
+			else{
+				if (t.source instanceof State)
 					warning(
-  					'Self transition of state ' + t.source.name + ' does not have an exec. This may lead to a livelock.',
+  					'Self-transition of state ' + t.source.name + ' does not have an exec. This may lead to a livelock.',
 					RoboChartPackage.Literals.TRANSITION__ACTION,
 					'SELF_TRANSTION_WITHOUT_AN_EXEC')
-				}
+				else 
+					warning(
+  			 		'Self-transition of junction ' + t.source.name + ' does not have an exec. This may lead to a livelock.',
+			 		 RoboChartPackage.Literals.TRANSITION__ACTION,
+					'SELF_TRANSTION_WITHOUT_AN_EXEC')	
 			}
 		}
 
 	}
-}
 
 
 
