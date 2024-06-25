@@ -17,13 +17,13 @@
 grammar circus.robocalc.robosim.textual.RoboSim with circus.robocalc.robochart.textual.RoboChart
 
 
-import "http://www.robocalc.circus/RoboSim"
+import "http://www.robocalc.circus/RoboSim" as robosim
 import "http://www.robocalc.circus/RoboChart"
 
 RootRule returns RCPackage: RCPackage;
 
-InputContext returns Context:
-	{InputContext}
+SimInputContext returns Context:
+	{robosim::InputContext}
 	'input' 'context' '{'
 		(
 			'uses' interfaces+=[Interface|QualifiedName] |
@@ -33,8 +33,8 @@ InputContext returns Context:
 	'}'
 ;
 
-OutputContext returns Context: 
-	{OutputContext}
+SimOutputContext returns Context: 
+	{robosim::OutputContext}
 	'output' 'context' '{'
 		(
 			'uses' interfaces+=[Interface|QualifiedName] |
@@ -55,7 +55,7 @@ ConstCycle returns Variable:
 
 @Override
 RCModule:
-	{SimModule}'module' name=ID '{'
+	{robosim::SimModule}'module' name=ID '{'
 		(
 		connections+=Connection |
 		nodes+=ConnectionNode |
@@ -65,8 +65,8 @@ RCModule:
 ;
 
 @Override
-ControllerDef:
-	{SimControllerDef}'controller' name=ID 
+GeneralController:
+	{robosim::SimControllerDef}'controller' name=ID 
 	'{'
 		(
 		'uses' interfaces+=[Interface|QualifiedName] |
@@ -85,15 +85,15 @@ ControllerDef:
 
 @Override
 StateMachineDef:
-	{SimMachineDef}'stm' name=ID 
+	{robosim::SimMachineDef}'stm' name=ID 
 	'{' 
 		(
 			'uses' interfaces+=[Interface|QualifiedName] |
 			'requires' rInterfaces+=[Interface|QualifiedName] |
 			variableList+=VariableList |
 			clocks+=Clock |
-			inputContext=InputContext |
-			outputContext=OutputContext |
+			inputContext=SimInputContext |
+			outputContext=SimOutputContext |
 			'cycleDef' cycleDef=Expression
 		)*
 		(
@@ -104,8 +104,8 @@ StateMachineDef:
 ;
 
 @Override
-OperationDef:
-	{SimOperationDef} 'operation' name=ID '('
+GeneralOperation:
+	{robosim::SimOperationDef} 'operation' name=ID '('
 		(
 			parameters+=Parameter
 			(',' parameters+=Parameter)*
@@ -123,8 +123,8 @@ OperationDef:
 			nodes+=Node |
 			transitions+=Transition |
 			clocks+=Clock |
-			inputContext=InputContext |
-			outputContext=OutputContext
+			inputContext=SimInputContext |
+			outputContext=SimOutputContext
 		)*
 	'}'	
 ;
@@ -146,7 +146,7 @@ Transition:
 ;
 
 ExecTrigger returns Communication:
-	{ExecTrigger} event=[Event|'exec']
+	{robosim::ExecTrigger} event=[Event|'exec']
 ;
 
 
@@ -166,7 +166,7 @@ Atomic returns Expression:
 //
 //		)
 	SimRefExp |
-	{CycleExp} 'cycle' |
+	{robosim::CycleExp} 'cycle' |
 	super::Atomic
 ;
 
@@ -183,13 +183,13 @@ Atomic returns Expression:
  
 @Override
 VariableReference returns Assignable:
-	{SimVarRef} '$' name=[Variable|QualifiedName] |
+	{robosim::SimVarRef} '$' name=[Variable|QualifiedName] |
 	super::VariableReference
 ;
 
 
 SimRefExp returns Expression:
-	{SimRefExp} '$' element=[NamedElement|QualifiedName] 
+	{robosim::SimRefExp} '$' element=[NamedElement|QualifiedName] 
 	(
 		=> (
 			'.' exp=CallExp | 
@@ -211,7 +211,7 @@ SimRefExp returns Expression:
 //
 ////CommandEventCall:
 
-OutputCommunication:
+OutputCommunication returns robosim::OutputCommunication:
 	'$' event=[Event|QualifiedName]
 		(
 			('!'|'.') value=CallExp
@@ -225,7 +225,7 @@ OutputCommunication:
 
 @Override
 BasicStatement returns Statement:
-	{ExecStatement} 'exec' |
+	{robosim::ExecStatement} 'exec' |
 	OutputCommunication |
 	IfStmt |
 	Skip |
@@ -237,7 +237,7 @@ BasicStatement returns Statement:
 
 @Override
 Call:
-	{SimCall} '$' operation=[OperationSig|QualifiedName] '(' (args+=Expression (',' args+=Expression)*)? ')' |
+	{robosim::SimCall} '$' operation=[OperationSig|QualifiedName] '(' (args+=Expression (',' args+=Expression)*)? ')' |
 	super::Call
 ;
 

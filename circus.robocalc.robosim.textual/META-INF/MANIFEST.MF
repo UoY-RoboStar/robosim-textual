@@ -26,7 +26,6 @@ Export-Package: circus.robocalc.robosim.textual,
  circus.robocalc.robosim.textual.serializer,
  circus.robocalc.robosim.textual.services,
  circus.robocalc.robosim.textual.validation,
- robosim,
  circus.robocalc.robosim.textual.parser.antlr.internal,
  circus.robocalc.robosim.textual.parser.antlr
 Import-Package: org.apache.log4j
