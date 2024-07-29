@@ -20,7 +20,7 @@ class RoboSimOutputConfigurationProvider extends OutputConfigurationProvider {
 	public static val NOT_DERIVED = "NOT_DERIVED"
 	public static val DERIVED = "DERIVED"
 
-	static val GEN_ID = "circus.robocalc.robosim.textual.robosim.generator"
+	static val GEN_ID = "robosim.generator"
 	
 	override getOutputConfigurations() {
 		val config = Platform.extensionRegistry.getConfigurationElementsFor(GEN_ID);
