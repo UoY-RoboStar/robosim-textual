@@ -234,7 +234,7 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 			return s
 		}
 		  else if (reference == SIM_REF_EXP__REQUIRED_VARIABLE) {
-			var s = inputVariablesDeclared(context, result)
+			var s = outputVariablesDeclared(context, result)
 			return s
 		}
 		return result
