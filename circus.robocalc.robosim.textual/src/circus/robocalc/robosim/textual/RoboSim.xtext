@@ -193,7 +193,8 @@ SimRefExp returns Expression:
 	(
 		=> (
 			'.' exp=CallExp | 
-			('?' variable=[Variable|QualifiedName] (':' predicate=CallExp)?)
+			('?' variable=[Variable|QualifiedName] (':' predicate=CallExp)?) |
+			('?' '$' requiredVariable=[Variable|QualifiedName] (':' predicate=CallExp)?)
 		)
 	)?
 ;
