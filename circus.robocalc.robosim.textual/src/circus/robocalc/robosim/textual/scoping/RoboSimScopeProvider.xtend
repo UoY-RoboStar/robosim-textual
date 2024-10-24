@@ -187,7 +187,8 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 //	}
 //	
 	def dispatch IScope resolveScope(OutputCommunication context, EReference reference) {
-		val result = delegateGetScope(context, reference)
+		//val result = delegateGetScope(context, reference)
+		val result = IScope::NULLSCOPE
 		//if (reference == COMMAND_EVENT_CALL__EVENT) {
 		//	return context.eContainer.outputEventsDeclared(result)
 		//}
@@ -227,7 +228,8 @@ class RoboSimScopeProvider extends AbstractRoboSimScopeProvider {
 			}
 		} else if (reference == SIM_REF_EXP__ELEMENT) {
 			var s = inputVariablesDeclared(context, result)
-			s = eventsDeclared(context,s)
+			//s = eventsDeclared(context,s)
+			s = inputEventsDeclared(context,s)
 			return s
 		} else if (reference == SIM_REF_EXP__VARIABLE) {
 			var s = variablesDeclared(context, result)
